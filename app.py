@@ -1,56 +1,52 @@
-from flask import Flask, render_template, redirect, url_for
-from scraper import get_dashboard_data, get_fallback_dashboard_data
+from flask import Flask, render_template
+import json
+import os
 
 app = Flask(__name__)
 
-CACHED_STANDINGS = None
-CACHED_SCHEDULE = []
-LAST_ERROR = None
+DATA_FILE = "dashboard_data.json"
+
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return [], [], "No saved dashboard data yet. Run update_data.py locally and push dashboard_data.json."
+
+    with open(DATA_FILE, "r") as f:
+        data = json.load(f)
+
+    standings = data.get("standings", [])
+    schedule = data.get("schedule", [])
+
+    return standings, schedule, None
 
 @app.route("/")
 def home():
-    global CACHED_STANDINGS, CACHED_SCHEDULE, LAST_ERROR
+    standings, schedule, last_error = load_data()
 
-    if CACHED_STANDINGS is None:
-        CACHED_STANDINGS, CACHED_SCHEDULE = get_fallback_dashboard_data()
-        LAST_ERROR = "Live data has not been refreshed yet."
+    afc = sorted(
+        [team for team in standings if team.get("Conference") == "AFC"],
+        key=lambda x: x.get("Seed", 99)
+    )
 
-    afc = CACHED_STANDINGS[CACHED_STANDINGS["Conference"] == "AFC"].sort_values("Seed")
-    nfc = CACHED_STANDINGS[CACHED_STANDINGS["Conference"] == "NFC"].sort_values("Seed")
+    nfc = sorted(
+        [team for team in standings if team.get("Conference") == "NFC"],
+        key=lambda x: x.get("Seed", 99)
+    )
 
     return render_template(
         "index.html",
-        afc=afc.to_dict("records"),
-        nfc=nfc.to_dict("records"),
-        last_error=LAST_ERROR
+        afc=afc,
+        nfc=nfc,
+        last_error=last_error
     )
-
-@app.route("/refresh")
-def refresh():
-    global CACHED_STANDINGS, CACHED_SCHEDULE, LAST_ERROR
-
-    try:
-        CACHED_STANDINGS, CACHED_SCHEDULE = get_dashboard_data()
-        LAST_ERROR = None
-    except Exception as e:
-        if CACHED_STANDINGS is None:
-            CACHED_STANDINGS, CACHED_SCHEDULE = get_fallback_dashboard_data()
-        LAST_ERROR = str(e)
-
-    return redirect(url_for("home"))
 
 @app.route("/schedule")
 def schedule():
-    global CACHED_STANDINGS, CACHED_SCHEDULE, LAST_ERROR
-
-    if CACHED_STANDINGS is None:
-        CACHED_STANDINGS, CACHED_SCHEDULE = get_fallback_dashboard_data()
-        LAST_ERROR = "Live data has not been refreshed yet."
+    standings, schedule_rows, last_error = load_data()
 
     return render_template(
         "schedule.html",
-        schedule=CACHED_SCHEDULE,
-        last_error=LAST_ERROR
+        schedule=schedule_rows,
+        last_error=last_error
     )
 
 @app.route("/health")
