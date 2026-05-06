@@ -1,16 +1,14 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
-import time
+import os
 import re
 
 STANDINGS_URL = "https://neonsportz.com/leagues/JD/standings"
-GAMES_URL = "https://neonsportz.com/leagues/JD/games"
-
-WEEKS_TO_CHECK = [15, 16, 17, 18]
 
 DIVISIONS = {
     "Bills": "AFC East", "Dolphins": "AFC East", "Patriots": "AFC East", "Bisons": "AFC East",
@@ -24,73 +22,56 @@ DIVISIONS = {
     "Cardinals": "NFC West", "Rams": "NFC West", "49ers": "NFC West", "Seahawks": "NFC West",
 }
 
-ALL_TEAMS = set(DIVISIONS.keys())
+def get_conference(team):
+    division = DIVISIONS.get(team, "")
+    if division.startswith("AFC"):
+        return "AFC"
+    if division.startswith("NFC"):
+        return "NFC"
+    return "Unknown"
 
-CITY_TO_TEAM = {
-    "Dallas": "Cowboys",
-    "Washington": "Commanders",
-    "Philadelphia": "Eagles",
-    "Tennessee": "Titans",
-    "Atlanta": "Falcons",
-    "Minnesota": "Vikings",
-    "Baltimore": "Ravens",
-    "Pittsburgh": "Steelers",
-    "Austin": "Armadillos",
-    "Detroit": "Lions",
-    "Buffalo": "Bills",
-    "Miami": "Dolphins",
-    "Cleveland": "Browns",
-    "Tampa Bay": "Buccaneers",
-    "Green Bay": "Packers",
-    "New Orleans": "Saints",
-    "Kansas City": "Chiefs",
-    "Chicago": "Bears",
-    "Rio De Janeiro": "Bisons",
-    "Las Vegas": "Raiders",
-    "Arizona": "Cardinals",
-    "San Francisco": "49ers",
-    "Seattle": "Seahawks",
-    "Indianapolis": "Colts",
-    "New York": "Giants",
-    "Cincinnati": "Bengals",
-    "Jacksonville": "Jaguars",
-    "New England": "Patriots",
-    "Houston": "Oilers",
-}
+def record_pct(record):
+    parts = record.split("-")
+    wins = int(parts[0])
+    losses = int(parts[1])
+    ties = int(parts[2]) if len(parts) > 2 else 0
+    total = wins + losses + ties
+    return (wins + 0.5 * ties) / total if total else 0
 
 def create_driver():
-    chrome_options = Options()
+    options = Options()
 
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_bin = os.environ.get("CHROME_BIN")
+    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    if chrome_bin:
+        options.binary_location = chrome_bin
 
-    wait = WebDriverWait(driver, 20)
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-software-rasterizer")
+    options.add_argument("--window-size=1920,1080")
 
+    if chromedriver_path:
+        service = Service(chromedriver_path)
+        driver = webdriver.Chrome(service=service, options=options)
+    else:
+        driver = webdriver.Chrome(options=options)
+
+    wait = WebDriverWait(driver, 25)
     return driver, wait
-
-def get_conference(team):
-    div = DIVISIONS.get(team, "")
-    if div.startswith("AFC"):
-        return "AFC"
-    return "NFC"
 
 def scrape_standings(driver, wait):
     driver.get(STANDINGS_URL)
 
     wait.until(
-        EC.presence_of_all_elements_located(
-            (By.CSS_SELECTOR, "table tbody tr")
-        )
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table tbody tr"))
     )
 
-    teams = []
-
     rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+    teams = []
 
     for row in rows:
         cols = [
@@ -113,20 +94,34 @@ def scrape_standings(driver, wait):
             "Team": team,
             "Wins": int(cols[1]),
             "Losses": int(cols[2]),
+            "Ties": int(cols[3]),
             "Record": f"{cols[1]}-{cols[2]}",
             "WinPct": float(cols[4]),
+            "Home": cols[5],
+            "Away": cols[6],
+            "DivisionRecord": cols[7],
+            "ConferenceRecord": cols[8],
+            "DivisionPct": record_pct(cols[7]),
+            "ConferencePct": record_pct(cols[8]),
+            "PF": int(cols[9]),
+            "PA": int(cols[10]),
             "Diff": int(cols[11]),
             "Streak": cols[12],
             "Seed": 99,
             "DivisionWinner": False,
+            "Status": "",
+            "MagicNumber": "",
+            "Remaining": 0,
+            "RemainingGames": "Coming Soon",
+            "AvgDifficulty": 0
         })
 
     return pd.DataFrame(teams)
 
 def sort_teams(df):
     return df.sort_values(
-        by=["WinPct", "Diff"],
-        ascending=[False, False]
+        by=["WinPct", "DivisionPct", "ConferencePct", "Diff", "PF"],
+        ascending=[False, False, False, False, False]
     )
 
 def apply_nfl_seeding(df):
@@ -139,42 +134,68 @@ def apply_nfl_seeding(df):
 
         for division in sorted(conf_df["Division"].unique()):
             div_df = conf_df[conf_df["Division"] == division].copy()
-
             winner = sort_teams(div_df).iloc[0].copy()
-
             winner["DivisionWinner"] = True
-
             winners.append(winner)
 
         winners_df = sort_teams(pd.DataFrame(winners))
-
         winners_df["Seed"] = range(1, len(winners_df) + 1)
 
         winner_teams = set(winners_df["Team"])
 
-        wildcards = conf_df[
-            ~conf_df["Team"].isin(winner_teams)
-        ].copy()
-
+        wildcards = conf_df[~conf_df["Team"].isin(winner_teams)].copy()
         wildcards = sort_teams(wildcards).head(3)
-
         wildcards["Seed"] = range(5, 5 + len(wildcards))
+        wildcards["DivisionWinner"] = False
 
         playoff = pd.concat([winners_df, wildcards])
 
-        others = conf_df[
-            ~conf_df["Team"].isin(set(playoff["Team"]))
-        ].copy()
-
+        others = conf_df[~conf_df["Team"].isin(set(playoff["Team"]))].copy()
         others = sort_teams(others)
-
         others["Seed"] = range(8, 8 + len(others))
+        others["DivisionWinner"] = False
 
-        final.append(
-            pd.concat([playoff, others]).sort_values("Seed")
-        )
+        final.append(pd.concat([playoff, others]).sort_values("Seed"))
 
     return pd.concat(final)
+
+def add_status_and_magic_numbers(df):
+    df = df.copy()
+
+    for conf in ["AFC", "NFC"]:
+        conf_df = df[df["Conference"] == conf].copy()
+
+        playoff_cutoff = conf_df[conf_df["Seed"] == 7]
+        eighth = conf_df[conf_df["Seed"] == 8]
+        seed_1 = conf_df[conf_df["Seed"] == 1]
+
+        cutoff_wins = int(playoff_cutoff.iloc[0]["Wins"]) if not playoff_cutoff.empty else 0
+        eighth_max = int(eighth.iloc[0]["Wins"] + eighth.iloc[0]["Remaining"]) if not eighth.empty else 0
+        top_team = seed_1.iloc[0]["Team"] if not seed_1.empty else None
+
+        for idx, row in conf_df.iterrows():
+            status = ""
+
+            if row["Seed"] <= 7:
+                status = "In Playoffs"
+
+            if row["DivisionWinner"]:
+                status = "Division Leader"
+
+            if row["Team"] == top_team:
+                status = "#1 Seed"
+
+            max_wins = row["Wins"] + row["Remaining"]
+
+            if max_wins < cutoff_wins:
+                status = "Eliminated"
+
+            magic = max(0, eighth_max + 1 - row["Wins"]) if row["Seed"] <= 7 else ""
+
+            df.loc[idx, "Status"] = status
+            df.loc[idx, "MagicNumber"] = str(magic)
+
+    return df
 
 def get_dashboard_data():
     driver, wait = create_driver()
@@ -183,11 +204,8 @@ def get_dashboard_data():
 
     driver.quit()
 
-    standings["Remaining"] = 0
-    standings["RemainingGames"] = "Coming Soon"
-    standings["AvgDifficulty"] = 0
-
     standings = apply_nfl_seeding(standings)
+    standings = add_status_and_magic_numbers(standings)
 
     return standings, []
 
