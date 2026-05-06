@@ -2,14 +2,11 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import time
 import re
-
-CHROMEDRIVER_PATH = "chromedriver.exe"
 
 STANDINGS_URL = "https://neonsportz.com/leagues/JD/standings"
 GAMES_URL = "https://neonsportz.com/leagues/JD/games"
@@ -60,12 +57,15 @@ def record_pct(record):
     return (wins + 0.5 * ties) / total if total else 0
 
 def create_driver():
-    service = Service(CHROMEDRIVER_PATH)
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(service=service, options=options)
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=options)
     wait = WebDriverWait(driver, 25)
+
     return driver, wait
 
 def scrape_standings(driver, wait):
@@ -127,13 +127,6 @@ def teams_from_text(text):
     return list(dict.fromkeys(found))
 
 def game_is_unplayed(text):
-    """
-    NeonSportz rows often look like:
-    0.00 vs 0 0.0        = unplayed
-    0.037 vs 34 0.0      = completed / has score
-    Not Scheduled        = unplayed
-    """
-
     if "Not Scheduled" in text:
         return True
 
@@ -141,11 +134,7 @@ def game_is_unplayed(text):
 
     if vs_match:
         visible_score = int(vs_match.group(1))
-
-        if visible_score == 0:
-            return True
-
-        return False
+        return visible_score == 0
 
     return False
 
