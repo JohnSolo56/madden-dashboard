@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remaining Schedule</title>
+    <meta http-equiv="refresh" content="300">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b0c10;
+            color: white;
+        }
+
+        .header {
+            background: #111827;
+            padding: 22px;
+            text-align: center;
+            border-bottom: 4px solid #d71920;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .nav {
+            margin-top: 14px;
+        }
+
+        .nav a {
+            color: white;
+            background: #d71920;
+            padding: 9px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 25px auto;
+        }
+
+        .card {
+            background: #1f2937;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #374151;
+            box-shadow: 0 0 18px rgba(0,0,0,0.45);
+        }
+
+        .card-title {
+            background: #d71920;
+            padding: 14px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #111827;
+            color: #f9fafb;
+            padding: 11px 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #374151;
+        }
+
+        td {
+            padding: 11px 8px;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background: #263244;
+        }
+
+        tr:hover {
+            background: #374151;
+        }
+
+        .week {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        .team {
+            font-weight: bold;
+        }
+
+        .difficulty-low {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .difficulty-mid {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        .difficulty-high {
+            color: #ef4444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>📅 Remaining Schedule</h1>
+    <div class="nav">
+        <a href="/">Playoff Picture</a>
+        <a href="/schedule">Remaining Schedule</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <div class="card-title">Games Left</div>
+
+        <table>
+            <tr>
+                <th>Week</th>
+                <th>Away</th>
+                <th>Away Record</th>
+                <th>Home</th>
+                <th>Home Record</th>
+                <th>Game Difficulty</th>
+            </tr>
+
+            {% for game in schedule %}
+            <tr>
+                <td class="week">Week {{ game.Week }}</td>
+                <td class="team">{{ game.Away }}</td>
+                <td>{{ game.AwayRecord }}</td>
+                <td class="team">{{ game.Home }}</td>
+                <td>{{ game.HomeRecord }}</td>
+
+                {% if game.Difficulty >= 0.650 %}
+                    <td class="difficulty-high">{{ game.Difficulty }}</td>
+                {% elif game.Difficulty >= 0.500 %}
+                    <td class="difficulty-mid">{{ game.Difficulty }}</td>
+                {% else %}
+                    <td class="difficulty-low">{{ game.Difficulty }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

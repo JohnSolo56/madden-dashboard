@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Madden League Dashboard</title>
+    <meta http-equiv="refresh" content="300">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b0c10;
+            color: white;
+        }
+
+        .header {
+            background: #111827;
+            padding: 22px;
+            text-align: center;
+            border-bottom: 4px solid #d71920;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin-top: 8px;
+            color: #cbd5e1;
+        }
+
+        .nav {
+            margin-top: 14px;
+        }
+
+        .nav a {
+            color: white;
+            background: #d71920;
+            padding: 9px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .container {
+            width: 97%;
+            margin: 25px auto;
+        }
+
+        .conference-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: #1f2937;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #374151;
+            box-shadow: 0 0 18px rgba(0,0,0,0.45);
+        }
+
+        .card-title {
+            background: #d71920;
+            padding: 14px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #111827;
+            color: #f9fafb;
+            padding: 9px 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #374151;
+        }
+
+        td {
+            padding: 9px 5px;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            font-size: 12px;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: #263244;
+        }
+
+        tr:hover {
+            background: #374151;
+        }
+
+        .seed {
+            font-weight: bold;
+            color: #facc15;
+            font-size: 15px;
+        }
+
+        .team-name {
+            font-weight: bold;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .record {
+            font-weight: bold;
+        }
+
+        .division-winner {
+            color: #facc15;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .eliminated {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .games-left {
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .opponents {
+            text-align: left;
+            color: #e5e7eb;
+            font-size: 11px;
+            line-height: 1.35;
+            max-width: 210px;
+        }
+
+        .difficulty-low {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .difficulty-mid {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        .difficulty-high {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .bracket-section {
+            margin-top: 35px;
+        }
+
+        .bracket-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .bracket-card {
+            background: #1f2937;
+            border-radius: 10px;
+            border: 1px solid #374151;
+            padding-bottom: 20px;
+        }
+
+        .matchup {
+            margin: 15px auto;
+            width: 85%;
+            background: #111827;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .matchup-title {
+            background: #374151;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        .matchup-team {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #374151;
+        }
+
+        .bye {
+            border: 1px solid #facc15;
+        }
+
+        .bye .matchup-title {
+            background: #92400e;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 1150px) {
+            .conference-grid,
+            .bracket-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🏈 Madden League Playoff Dashboard</h1>
+    <p>Auto-refreshes every 5 minutes | NFL-style seeding | Magic numbers | Remaining schedule</p>
+    <div class="nav">
+        <a href="/">Playoff Picture</a>
+        <a href="/schedule">Remaining Schedule</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="conference-grid">
+
+        <div class="card">
+            <div class="card-title">AFC Standings</div>
+            <table>
+                <tr>
+                    <th>Seed</th>
+                    <th>Team</th>
+                    <th>Div</th>
+                    <th>Record</th>
+                    <th>Status</th>
+                    <th>Magic #</th>
+                    <th>Games Left</th>
+                    <th>Remaining Opponents</th>
+                    <th>Difficulty</th>
+                    <th>Diff</th>
+                    <th>Streak</th>
+                </tr>
+
+                {% for team in afc %}
+                <tr>
+                    <td class="seed">{{ team.Seed }}</td>
+                    <td class="team-name">{{ team.Team }}</td>
+                    <td>
+                        {% if team.DivisionWinner %}
+                            <span class="division-winner">DIV</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="record">{{ team.Record }}</td>
+
+                    {% if team.Status == "Eliminated" %}
+                        <td class="eliminated">{{ team.Status }}</td>
+                    {% else %}
+                        <td class="status">{{ team.Status }}</td>
+                    {% endif %}
+
+                    <td>{{ team.MagicNumber }}</td>
+                    <td class="games-left">{{ team.Remaining }}</td>
+
+                    <td class="opponents">
+                        {{ team.RemainingGames }}
+                    </td>
+
+                    {% if team.AvgDifficulty >= 0.650 %}
+                        <td class="difficulty-high">{{ team.AvgDifficulty }}</td>
+                    {% elif team.AvgDifficulty >= 0.500 %}
+                        <td class="difficulty-mid">{{ team.AvgDifficulty }}</td>
+                    {% else %}
+                        <td class="difficulty-low">{{ team.AvgDifficulty }}</td>
+                    {% endif %}
+
+                    <td>{{ team.Diff }}</td>
+                    <td>{{ team.Streak }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">NFC Standings</div>
+            <table>
+                <tr>
+                    <th>Seed</th>
+                    <th>Team</th>
+                    <th>Div</th>
+                    <th>Record</th>
+                    <th>Status</th>
+                    <th>Magic #</th>
+                    <th>Games Left</th>
+                    <th>Remaining Opponents</th>
+                    <th>Difficulty</th>
+                    <th>Diff</th>
+                    <th>Streak</th>
+                </tr>
+
+                {% for team in nfc %}
+                <tr>
+                    <td class="seed">{{ team.Seed }}</td>
+                    <td class="team-name">{{ team.Team }}</td>
+                    <td>
+                        {% if team.DivisionWinner %}
+                            <span class="division-winner">DIV</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="record">{{ team.Record }}</td>
+
+                    {% if team.Status == "Eliminated" %}
+                        <td class="eliminated">{{ team.Status }}</td>
+                    {% else %}
+                        <td class="status">{{ team.Status }}</td>
+                    {% endif %}
+
+                    <td>{{ team.MagicNumber }}</td>
+                    <td class="games-left">{{ team.Remaining }}</td>
+
+                    <td class="opponents">
+                        {{ team.RemainingGames }}
+                    </td>
+
+                    {% if team.AvgDifficulty >= 0.650 %}
+                        <td class="difficulty-high">{{ team.AvgDifficulty }}</td>
+                    {% elif team.AvgDifficulty >= 0.500 %}
+                        <td class="difficulty-mid">{{ team.AvgDifficulty }}</td>
+                    {% else %}
+                        <td class="difficulty-low">{{ team.AvgDifficulty }}</td>
+                    {% endif %}
+
+                    <td>{{ team.Diff }}</td>
+                    <td>{{ team.Streak }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    </div>
+
+    <div class="bracket-section">
+        <div class="bracket-grid">
+
+            <div class="bracket-card">
+                <div class="card-title">AFC Playoff Bracket</div>
+
+                {% if afc|length >= 7 %}
+                <div class="matchup bye">
+                    <div class="matchup-title">First Round Bye</div>
+                    <div class="matchup-team"><span>(1) {{ afc[0].Team }}</span><span>{{ afc[0].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(2) {{ afc[1].Team }}</span><span>{{ afc[1].Record }}</span></div>
+                    <div class="matchup-team"><span>(7) {{ afc[6].Team }}</span><span>{{ afc[6].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(3) {{ afc[2].Team }}</span><span>{{ afc[2].Record }}</span></div>
+                    <div class="matchup-team"><span>(6) {{ afc[5].Team }}</span><span>{{ afc[5].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(4) {{ afc[3].Team }}</span><span>{{ afc[3].Record }}</span></div>
+                    <div class="matchup-team"><span>(5) {{ afc[4].Team }}</span><span>{{ afc[4].Record }}</span></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="bracket-card">
+                <div class="card-title">NFC Playoff Bracket</div>
+
+                {% if nfc|length >= 7 %}
+                <div class="matchup bye">
+                    <div class="matchup-title">First Round Bye</div>
+                    <div class="matchup-team"><span>(1) {{ nfc[0].Team }}</span><span>{{ nfc[0].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(2) {{ nfc[1].Team }}</span><span>{{ nfc[1].Record }}</span></div>
+                    <div class="matchup-team"><span>(7) {{ nfc[6].Team }}</span><span>{{ nfc[6].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(3) {{ nfc[2].Team }}</span><span>{{ nfc[2].Record }}</span></div>
+                    <div class="matchup-team"><span>(6) {{ nfc[5].Team }}</span><span>{{ nfc[5].Record }}</span></div>
+                </div>
+
+                <div class="matchup">
+                    <div class="matchup-title">Wildcard</div>
+                    <div class="matchup-team"><span>(4) {{ nfc[3].Team }}</span><span>{{ nfc[3].Record }}</span></div>
+                    <div class="matchup-team"><span>(5) {{ nfc[4].Team }}</span><span>{{ nfc[4].Record }}</span></div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <p class="footer-note">
+        Magic numbers and eliminated status are estimated from current wins and remaining games. Full NFL tiebreakers are approximated using available NeonSportz standings fields.
+    </p>
+
+</div>
+
+</body>
+</html>
