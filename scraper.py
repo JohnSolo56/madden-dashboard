@@ -1,3 +1,6 @@
+# scraper.py
+# LOCAL VERSION: uses chromedriver.exe in your Madden-Dashboard folder
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -5,9 +8,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
-import os
-import re
 import time
+import re
+
+CHROMEDRIVER_PATH = "chromedriver.exe"
 
 STANDINGS_URL = "https://neonsportz.com/leagues/JD/standings"
 GAMES_URL = "https://neonsportz.com/leagues/JD/games"
@@ -77,29 +81,18 @@ def record_pct(record):
     return (wins + 0.5 * ties) / total if total else 0
 
 def create_driver():
+    service = Service(CHROMEDRIVER_PATH)
+
     options = Options()
-
-    chrome_bin = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
-    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
-
-    if os.path.exists(chrome_bin):
-        options.binary_location = chrome_bin
-
     options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
 
-    if os.path.exists(chromedriver_path):
-        service = Service(chromedriver_path)
-        driver = webdriver.Chrome(service=service, options=options)
-    else:
-        driver = webdriver.Chrome(options=options)
-
+    driver = webdriver.Chrome(service=service, options=options)
     wait = WebDriverWait(driver, 25)
+
     return driver, wait
 
 def scrape_standings(driver, wait):
@@ -151,7 +144,7 @@ def scrape_standings(driver, wait):
             "Status": "",
             "MagicNumber": "",
             "Remaining": 0,
-            "RemainingGames": "Coming Soon",
+            "RemainingGames": "None",
             "AvgDifficulty": 0
         })
 
@@ -175,6 +168,9 @@ def game_is_unplayed(text):
     if "Not Scheduled" in text:
         return True
 
+    # NeonSportz rows often show something like:
+    # 0.00 vs 0 0.0 = unplayed
+    # 0.037 vs 34 0.0 = played
     vs_match = re.search(r"\b\d+(?:\.\d+)?\s+vs\s+(\d+)\s+\d+(?:\.\d+)?\b", text)
 
     if vs_match:
@@ -211,7 +207,9 @@ def scrape_remaining_games(driver):
         set_week(driver, week)
         time.sleep(3)
 
-        for row in driver.find_elements(By.CSS_SELECTOR, "tr"):
+        rows = driver.find_elements(By.CSS_SELECTOR, "tr")
+
+        for row in rows:
             text = row.text.strip()
 
             if "Week" not in text:
