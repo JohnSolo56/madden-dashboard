@@ -1,5 +1,5 @@
 # scraper.py
-# LOCAL VERSION: uses chromedriver.exe in your Madden-Dashboard folder
+# LOCAL VERSION
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,6 +16,7 @@ CHROMEDRIVER_PATH = "chromedriver.exe"
 STANDINGS_URL = "https://neonsportz.com/leagues/JD/standings"
 GAMES_URL = "https://neonsportz.com/leagues/JD/games"
 
+REGULAR_SEASON_GAMES = 17
 WEEKS_TO_CHECK = [15, 16, 17, 18]
 
 DIVISIONS = {
@@ -120,14 +121,20 @@ def scrape_standings(driver, wait):
         if team not in DIVISIONS:
             continue
 
+        wins = int(cols[1])
+        losses = int(cols[2])
+        ties = int(cols[3])
+
+        games_left = max(0, REGULAR_SEASON_GAMES - wins - losses - ties)
+
         teams.append({
             "Conference": get_conference(team),
             "Division": DIVISIONS[team],
             "Team": team,
-            "Wins": int(cols[1]),
-            "Losses": int(cols[2]),
-            "Ties": int(cols[3]),
-            "Record": f"{cols[1]}-{cols[2]}",
+            "Wins": wins,
+            "Losses": losses,
+            "Ties": ties,
+            "Record": f"{wins}-{losses}" if ties == 0 else f"{wins}-{losses}-{ties}",
             "WinPct": float(cols[4]),
             "Home": cols[5],
             "Away": cols[6],
@@ -143,7 +150,7 @@ def scrape_standings(driver, wait):
             "DivisionWinner": False,
             "Status": "",
             "MagicNumber": "",
-            "Remaining": 0,
+            "Remaining": games_left,
             "RemainingGames": "None",
             "AvgDifficulty": 0
         })
@@ -168,9 +175,6 @@ def game_is_unplayed(text):
     if "Not Scheduled" in text:
         return True
 
-    # NeonSportz rows often show something like:
-    # 0.00 vs 0 0.0 = unplayed
-    # 0.037 vs 34 0.0 = played
     vs_match = re.search(r"\b\d+(?:\.\d+)?\s+vs\s+(\d+)\s+\d+(?:\.\d+)?\b", text)
 
     if vs_match:
@@ -275,7 +279,7 @@ def apply_nfl_seeding(df):
     return pd.concat(final)
 
 def calculate_difficulty(record):
-    wins, losses = record.split("-")
+    wins, losses = record.split("-")[:2]
     wins = int(wins)
     losses = int(losses)
     total = wins + losses
@@ -362,27 +366,26 @@ def get_dashboard_data():
 
     record_map = {row["Team"]: row["Record"] for _, row in standings.iterrows()}
 
-    remaining_counts = []
     remaining_lists = []
     difficulty_scores = []
 
     for _, row in standings.iterrows():
         team = row["Team"]
-        games_left = opponent_map.get(team, [])
+        scraped_games_left = opponent_map.get(team, [])
 
-        remaining_counts.append(len(games_left))
-        remaining_lists.append(", ".join(games_left) if games_left else "None")
+        if scraped_games_left:
+            remaining_lists.append(", ".join(scraped_games_left))
 
-        if games_left:
             scores = []
-            for game in games_left:
+            for game in scraped_games_left:
                 opponent = game.split(": ")[1]
                 scores.append(calculate_difficulty(record_map.get(opponent, "0-0")))
+
             difficulty_scores.append(round(sum(scores) / len(scores), 3))
         else:
+            remaining_lists.append("Schedule scrape unavailable")
             difficulty_scores.append(0)
 
-    standings["Remaining"] = remaining_counts
     standings["RemainingGames"] = remaining_lists
     standings["AvgDifficulty"] = difficulty_scores
 
@@ -422,7 +425,7 @@ def get_fallback_dashboard_data():
             "DivisionWinner": False,
             "Status": "Needs Refresh",
             "MagicNumber": "",
-            "Remaining": 0,
+            "Remaining": REGULAR_SEASON_GAMES,
             "RemainingGames": "Needs Refresh",
             "AvgDifficulty": 0
         })

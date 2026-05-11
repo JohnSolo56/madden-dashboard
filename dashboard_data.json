@@ -23,7 +23,7 @@
       "DivisionWinner": true,
       "Status": "#1 Seed",
       "MagicNumber": "0",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W15: Bears, W17: Oilers, W18: Jaguars",
       "AvgDifficulty": 0.758
     },
@@ -50,7 +50,7 @@
       "DivisionWinner": true,
       "Status": "Division Leader",
       "MagicNumber": "0",
-      "Remaining": 3,
+      "Remaining": 1,
       "RemainingGames": "W16: 49ers, W17: Lions, W18: Colts",
       "AvgDifficulty": 0.51
     },
@@ -104,7 +104,7 @@
       "DivisionWinner": true,
       "Status": "Division Leader",
       "MagicNumber": "3",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W15: Jaguars, W17: Browns, W18: Commanders",
       "AvgDifficulty": 0.492
     },
@@ -131,7 +131,7 @@
       "DivisionWinner": false,
       "Status": "In Playoffs",
       "MagicNumber": "0",
-      "Remaining": 4,
+      "Remaining": 1,
       "RemainingGames": "W15: Bengals, W16: Ravens, W17: Colts, W18: Texans",
       "AvgDifficulty": 0.572
     },
@@ -158,7 +158,7 @@
       "DivisionWinner": false,
       "Status": "In Playoffs",
       "MagicNumber": "1",
-      "Remaining": 2,
+      "Remaining": 1,
       "RemainingGames": "W17: Jaguars, W18: Patriots",
       "AvgDifficulty": 0.875
     },
@@ -239,7 +239,7 @@
       "DivisionWinner": false,
       "Status": "",
       "MagicNumber": "",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W15: Seahawks, W17: Raiders, W18: Dolphins",
       "AvgDifficulty": 0.496
     },
@@ -428,7 +428,7 @@
       "DivisionWinner": false,
       "Status": "Eliminated",
       "MagicNumber": "",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W16: Jaguars, W17: Armadillos, W18: Saints",
       "AvgDifficulty": 0.683
     },
@@ -455,7 +455,7 @@
       "DivisionWinner": true,
       "Status": "#1 Seed",
       "MagicNumber": "0",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W16: Bears, W17: 49ers, W18: Eagles",
       "AvgDifficulty": 0.522
     },
@@ -509,7 +509,7 @@
       "DivisionWinner": true,
       "Status": "Division Leader",
       "MagicNumber": "0",
-      "Remaining": 4,
+      "Remaining": 1,
       "RemainingGames": "W15: Chargers, W16: Lions, W17: Eagles, W18: 49ers",
       "AvgDifficulty": 0.469
     },
@@ -535,8 +535,8 @@
       "Seed": 4,
       "DivisionWinner": true,
       "Status": "Division Leader",
-      "MagicNumber": "2",
-      "Remaining": 4,
+      "MagicNumber": "1",
+      "Remaining": 2,
       "RemainingGames": "W15: Texans, W16: Cowboys, W17: Bisons, W18: Buccaneers",
       "AvgDifficulty": 0.772
     },
@@ -589,8 +589,8 @@
       "Seed": 6,
       "DivisionWinner": false,
       "Status": "In Playoffs",
-      "MagicNumber": "2",
-      "Remaining": 3,
+      "MagicNumber": "1",
+      "Remaining": 2,
       "RemainingGames": "W15: Vikings, W17: Packers, W18: Raiders",
       "AvgDifficulty": 0.267
     },
@@ -616,8 +616,8 @@
       "Seed": 7,
       "DivisionWinner": false,
       "Status": "In Playoffs",
-      "MagicNumber": "3",
-      "Remaining": 3,
+      "MagicNumber": "2",
+      "Remaining": 2,
       "RemainingGames": "W15: 49ers, W17: Rams, W18: Oilers",
       "AvgDifficulty": 0.444
     },
@@ -644,7 +644,7 @@
       "DivisionWinner": false,
       "Status": "",
       "MagicNumber": "",
-      "Remaining": 2,
+      "Remaining": 1,
       "RemainingGames": "W17: Seahawks, W18: Cowboys",
       "AvgDifficulty": 0.777
     },
@@ -671,7 +671,7 @@
       "DivisionWinner": false,
       "Status": "",
       "MagicNumber": "",
-      "Remaining": 4,
+      "Remaining": 2,
       "RemainingGames": "W15: Cardinals, W16: Patriots, W17: Cowboys, W18: Seahawks",
       "AvgDifficulty": 0.741
     },
@@ -696,9 +696,9 @@
       "Streak": "L4",
       "Seed": 10,
       "DivisionWinner": false,
-      "Status": "",
+      "Status": "Eliminated",
       "MagicNumber": "",
-      "Remaining": 3,
+      "Remaining": 1,
       "RemainingGames": "W16: Seahawks, W17: Patriots, W18: Vikings",
       "AvgDifficulty": 0.61
     },
@@ -833,7 +833,7 @@
       "DivisionWinner": false,
       "Status": "Eliminated",
       "MagicNumber": "",
-      "Remaining": 3,
+      "Remaining": 2,
       "RemainingGames": "W15: Falcons, W17: Dolphins, W18: Lions",
       "AvgDifficulty": 0.525
     },
