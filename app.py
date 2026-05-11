@@ -2,7 +2,6 @@ from flask import Flask, render_template
 import json
 import os
 import re
-import itertools
 from copy import deepcopy
 
 app = Flask(__name__)
@@ -16,10 +15,7 @@ def load_data():
     with open(DATA_FILE, "r") as f:
         data = json.load(f)
 
-    standings = data.get("standings", [])
-    schedule = data.get("schedule", [])
-
-    return standings, schedule, None
+    return data.get("standings", []), data.get("schedule", []), None
 
 def safe_int(value, default=0):
     try:
@@ -34,57 +30,112 @@ def safe_float(value, default=0.0):
         return default
 
 def record_win_pct(team):
-    wins = safe_int(team.get("Wins", 0))
-    losses = safe_int(team.get("Losses", 0))
-    ties = safe_int(team.get("Ties", 0))
+    w = safe_int(team.get("Wins", 0))
+    l = safe_int(team.get("Losses", 0))
+    t = safe_int(team.get("Ties", 0))
+    total = w + l + t
+    return (w + 0.5 * t) / total if total else 0
 
-    total = wins + losses + ties
+def sort_for_seed(teams):
+    return sorted(
+        teams,
+        key=lambda t: (
+            safe_float(t.get("WinPct", 0)),
+            safe_float(t.get("DivisionPct", 0)),
+            safe_float(t.get("ConferencePct", 0)),
+            safe_int(t.get("Diff", 0)),
+            safe_int(t.get("PF", 0))
+        ),
+        reverse=True
+    )
 
-    if total == 0:
-        return 0
+def reseed_after_results(standings):
+    teams = deepcopy(standings)
 
-    return (wins + 0.5 * ties) / total
+    for team in teams:
+        wins = safe_int(team.get("Wins", 0))
+        losses = safe_int(team.get("Losses", 0))
+        ties = safe_int(team.get("Ties", 0))
+        total = wins + losses + ties
+        team["WinPct"] = round((wins + 0.5 * ties) / total, 3) if total else 0
 
-def calculate_sos(team_name, standings, schedule):
-    record_map = {
-        team.get("Team"): record_win_pct(team)
-        for team in standings
-    }
+    final = []
 
-    opponents = []
+    for conf in ["AFC", "NFC"]:
+        conf_teams = [t for t in teams if t.get("Conference") == conf]
+        divisions = sorted(set(t.get("Division") for t in conf_teams))
 
-    for game in schedule:
-        away = game.get("Away")
-        home = game.get("Home")
+        division_winners = []
 
-        if away == team_name:
-            opponents.append(home)
+        for division in divisions:
+            div_teams = [t for t in conf_teams if t.get("Division") == division]
+            if div_teams:
+                winner = sort_for_seed(div_teams)[0]
+                winner["DivisionWinner"] = True
+                division_winners.append(winner)
 
-        if home == team_name:
-            opponents.append(away)
+        division_winners = sort_for_seed(division_winners)
 
-    if not opponents:
-        remaining_text = ""
+        for i, team in enumerate(division_winners, start=1):
+            team["Seed"] = i
 
-        for team in standings:
-            if team.get("Team") == team_name:
-                remaining_text = team.get("RemainingGames", "")
-                break
+        winner_names = set(t.get("Team") for t in division_winners)
 
-        matches = re.findall(r"W\d+:\s*([^,]+)", remaining_text)
+        wildcards = [t for t in conf_teams if t.get("Team") not in winner_names]
+        wildcards = sort_for_seed(wildcards)
 
-        for match in matches:
-            opponents.append(match.strip())
+        for i, team in enumerate(wildcards[:3], start=5):
+            team["Seed"] = i
+            team["DivisionWinner"] = False
 
-    if not opponents:
-        return 1.000
+        for i, team in enumerate(wildcards[3:], start=8):
+            team["Seed"] = i
+            team["DivisionWinner"] = False
 
-    opponent_pcts = []
+        final.extend(division_winners + wildcards)
 
-    for opponent in opponents:
-        opponent_pcts.append(record_map.get(opponent, 0))
+    return final
 
-    return round(sum(opponent_pcts) / len(opponent_pcts), 3)
+def clean_remaining_games(standings, schedule):
+    games = []
+
+    if schedule:
+        for game in schedule:
+            away = game.get("Away")
+            home = game.get("Home")
+            week = game.get("Week", "?")
+
+            if away and home:
+                games.append({"Week": week, "Away": away, "Home": home})
+
+    if games:
+        unique = []
+        seen = set()
+
+        for game in games:
+            key = tuple(sorted([game["Away"], game["Home"]])) + (str(game["Week"]),)
+            if key not in seen:
+                seen.add(key)
+                unique.append(game)
+
+        return unique
+
+    seen = set()
+
+    for team in standings:
+        team_name = team.get("Team")
+        text = team.get("RemainingGames", "")
+        matches = re.findall(r"W(\d+):\s*([^,]+)", text)
+
+        for week, opponent in matches:
+            opponent = opponent.strip()
+            key = tuple(sorted([team_name, opponent])) + (week,)
+
+            if key not in seen:
+                seen.add(key)
+                games.append({"Week": week, "Away": team_name, "Home": opponent})
+
+    return games
 
 def build_draft_order(standings, schedule):
     teams = []
@@ -92,13 +143,12 @@ def build_draft_order(standings, schedule):
     for team in standings:
         item = team.copy()
         item["WinPctCalc"] = record_win_pct(item)
-        item["ProjectedSOS"] = calculate_sos(item.get("Team"), standings, schedule)
         item["SeedNum"] = safe_int(item.get("Seed", 99), 99)
-        item["WinsNum"] = safe_int(item.get("Wins", 0))
         item["DiffNum"] = safe_int(item.get("Diff", 0))
         item["PFNum"] = safe_int(item.get("PF", 0))
         item["ConferencePctNum"] = safe_float(item.get("ConferencePct", 0))
         item["DivisionPctNum"] = safe_float(item.get("DivisionPct", 0))
+        item["ProjectedSOS"] = safe_float(item.get("AvgDifficulty", 1.0), 1.0)
         teams.append(item)
 
     non_playoff = [t for t in teams if t["SeedNum"] > 7]
@@ -132,335 +182,110 @@ def build_draft_order(standings, schedule):
     for i, team in enumerate(non_playoff_sorted + playoff_sorted, start=1):
         item = team.copy()
         item["Pick"] = i
-
-        if item["SeedNum"] > 7:
-            item["Reason"] = "Non-playoff: record, SOS, then NFL-style fallback"
-        else:
-            item["Reason"] = "Projected playoff slot"
-
+        item["Reason"] = "Non-playoff: record/SOS/tiebreakers" if item["SeedNum"] > 7 else "Projected playoff slot"
         draft_order.append(item)
 
     return draft_order
 
-def sort_for_seed(teams):
-    return sorted(
-        teams,
-        key=lambda t: (
-            safe_float(t.get("WinPct", 0)),
-            safe_float(t.get("DivisionPct", 0)),
-            safe_float(t.get("ConferencePct", 0)),
-            safe_int(t.get("Diff", 0)),
-            safe_int(t.get("PF", 0))
-        ),
-        reverse=True
-    )
+def simulate_single_game(standings, winner, loser):
+    simulated = deepcopy(standings)
+    team_map = {team.get("Team"): team for team in simulated}
 
-def reseed_after_results(standings):
-    teams = deepcopy(standings)
+    if winner in team_map and loser in team_map:
+        team_map[winner]["Wins"] = safe_int(team_map[winner].get("Wins", 0)) + 1
+        team_map[loser]["Losses"] = safe_int(team_map[loser].get("Losses", 0)) + 1
 
-    for team in teams:
-        wins = safe_int(team.get("Wins", 0))
-        losses = safe_int(team.get("Losses", 0))
-        ties = safe_int(team.get("Ties", 0))
-        total = wins + losses + ties
-
-        team["WinPct"] = round((wins + 0.5 * ties) / total, 3) if total else 0
-
-    final = []
-
-    for conf in ["AFC", "NFC"]:
-        conf_teams = [t for t in teams if t.get("Conference") == conf]
-
-        divisions = sorted(set(t.get("Division") for t in conf_teams))
-        division_winners = []
-
-        for division in divisions:
-            div_teams = [t for t in conf_teams if t.get("Division") == division]
-            if not div_teams:
-                continue
-
-            winner = sort_for_seed(div_teams)[0]
-            winner["DivisionWinner"] = True
-            division_winners.append(winner)
-
-        division_winners = sort_for_seed(division_winners)
-
-        for index, team in enumerate(division_winners, start=1):
-            team["Seed"] = index
-
-        winner_names = set(t.get("Team") for t in division_winners)
-
-        wildcards = [t for t in conf_teams if t.get("Team") not in winner_names]
-        wildcards = sort_for_seed(wildcards)
-
-        for index, team in enumerate(wildcards[:3], start=5):
-            team["Seed"] = index
-            team["DivisionWinner"] = False
-
-        for index, team in enumerate(wildcards[3:], start=8):
-            team["Seed"] = index
-            team["DivisionWinner"] = False
-
-        final.extend(division_winners + wildcards)
-
-    return final
-
-def clean_remaining_games(standings, schedule):
-    games = []
-
-    if schedule:
-        for game in schedule:
-            away = game.get("Away")
-            home = game.get("Home")
-            week = game.get("Week", "?")
-
-            if away and home:
-                games.append({
-                    "Week": week,
-                    "Away": away,
-                    "Home": home
-                })
-
-    if games:
-        unique = []
-        seen = set()
-
-        for game in games:
-            key = tuple(sorted([game["Away"], game["Home"]])) + (str(game["Week"]),)
-            if key not in seen:
-                seen.add(key)
-                unique.append(game)
-
-        return unique
-
-    # Backup: parse from RemainingGames text
-    seen = set()
-    for team in standings:
-        team_name = team.get("Team")
-        text = team.get("RemainingGames", "")
-
-        matches = re.findall(r"W(\d+):\s*([^,]+)", text)
-
-        for week, opponent in matches:
-            opponent = opponent.strip()
-            key = tuple(sorted([team_name, opponent])) + (week,)
-
-            if key in seen:
-                continue
-
-            seen.add(key)
-            games.append({
-                "Week": week,
-                "Away": team_name,
-                "Home": opponent
-            })
-
-    return games
+    return reseed_after_results(simulated)
 
 def build_scenarios(standings, schedule):
     games = clean_remaining_games(standings, schedule)
 
-    # Protect the website from exploding if there are too many games.
-    # 12 games = 4,096 combinations.
-    max_games = 12
-    games_to_simulate = games[:max_games]
+    max_games = 20
+    games_to_show = games[:max_games]
 
-    if not games_to_simulate:
-        return {
-            "games": [],
-            "total_scenarios": 0,
-            "team_results": [],
-            "if_then": [],
-            "warning": "No remaining games were found in dashboard_data.json."
-        }
-
-    team_seed_counts = {}
-    team_playoff_counts = {}
-    team_total_counts = {}
-
-    for team in standings:
-        name = team.get("Team")
-        team_seed_counts[name] = {}
-        team_playoff_counts[name] = 0
-        team_total_counts[name] = 0
-
-    total_scenarios = 0
-
-    # 0 means Away wins. 1 means Home wins.
-    for combo in itertools.product([0, 1], repeat=len(games_to_simulate)):
-        total_scenarios += 1
-
-        simulated = deepcopy(standings)
-        team_map = {team.get("Team"): team for team in simulated}
-
-        for result, game in zip(combo, games_to_simulate):
-            away = game["Away"]
-            home = game["Home"]
-
-            if away not in team_map or home not in team_map:
-                continue
-
-            if result == 0:
-                team_map[away]["Wins"] = safe_int(team_map[away].get("Wins", 0)) + 1
-                team_map[home]["Losses"] = safe_int(team_map[home].get("Losses", 0)) + 1
-            else:
-                team_map[home]["Wins"] = safe_int(team_map[home].get("Wins", 0)) + 1
-                team_map[away]["Losses"] = safe_int(team_map[away].get("Losses", 0)) + 1
-
-        reseeded = reseed_after_results(simulated)
-
-        for team in reseeded:
-            name = team.get("Team")
-            seed = safe_int(team.get("Seed", 99), 99)
-
-            team_total_counts[name] += 1
-            team_seed_counts[name][seed] = team_seed_counts[name].get(seed, 0) + 1
-
-            if seed <= 7:
-                team_playoff_counts[name] += 1
+    current_seed_map = {
+        team.get("Team"): safe_int(team.get("Seed", 99), 99)
+        for team in standings
+    }
 
     team_results = []
 
-    for team_name in sorted(team_seed_counts.keys()):
-        counts = team_seed_counts[team_name]
-        possible_seeds = sorted(counts.keys())
-
-        guaranteed_seed = None
-        if len(possible_seeds) == 1:
-            guaranteed_seed = possible_seeds[0]
-
-        playoff_odds = round((team_playoff_counts[team_name] / total_scenarios) * 100, 1) if total_scenarios else 0
+    for team in sorted(standings, key=lambda t: t.get("Team", "")):
+        seed = safe_int(team.get("Seed", 99), 99)
 
         team_results.append({
-            "Team": team_name,
-            "PossibleSeeds": ", ".join(str(seed) for seed in possible_seeds),
-            "GuaranteedSeed": guaranteed_seed if guaranteed_seed is not None else "",
-            "PlayoffOdds": playoff_odds
+            "Team": team.get("Team"),
+            "PossibleSeeds": str(seed),
+            "GuaranteedSeed": seed if seed <= 7 else "",
+            "PlayoffOdds": 100 if seed <= 7 else 0
         })
 
     if_then = []
 
-    for game in games_to_simulate:
-        for winner, loser in [(game["Away"], game["Home"]), (game["Home"], game["Away"])]:
-            filtered_seed_counts = {}
-            filtered_total = 0
+    for game in games_to_show:
+        away = game["Away"]
+        home = game["Home"]
 
-            for team in standings:
-                filtered_seed_counts[team.get("Team")] = {}
+        for winner, loser in [(away, home), (home, away)]:
+            reseeded = simulate_single_game(standings, winner, loser)
+            new_map = {
+                team.get("Team"): safe_int(team.get("Seed", 99), 99)
+                for team in reseeded
+            }
 
-            other_games = [g for g in games_to_simulate if g != game]
+            changed = []
 
-            for combo in itertools.product([0, 1], repeat=len(other_games)):
-                filtered_total += 1
+            for team_name, new_seed in new_map.items():
+                old_seed = current_seed_map.get(team_name, 99)
 
-                simulated = deepcopy(standings)
-                team_map = {team.get("Team"): team for team in simulated}
+                if new_seed != old_seed and new_seed <= 7:
+                    changed.append(f"{team_name} moves to #{new_seed}")
 
-                if winner in team_map and loser in team_map:
-                    team_map[winner]["Wins"] = safe_int(team_map[winner].get("Wins", 0)) + 1
-                    team_map[loser]["Losses"] = safe_int(team_map[loser].get("Losses", 0)) + 1
+            if changed:
+                if_then.append({
+                    "Game": f"{winner} beats {loser}",
+                    "Result": "; ".join(changed[:4])
+                })
 
-                for result, other_game in zip(combo, other_games):
-                    away = other_game["Away"]
-                    home = other_game["Home"]
-
-                    if away not in team_map or home not in team_map:
-                        continue
-
-                    if result == 0:
-                        team_map[away]["Wins"] = safe_int(team_map[away].get("Wins", 0)) + 1
-                        team_map[home]["Losses"] = safe_int(team_map[home].get("Losses", 0)) + 1
-                    else:
-                        team_map[home]["Wins"] = safe_int(team_map[home].get("Wins", 0)) + 1
-                        team_map[away]["Losses"] = safe_int(team_map[away].get("Losses", 0)) + 1
-
-                reseeded = reseed_after_results(simulated)
-
-                for team in reseeded:
-                    name = team.get("Team")
-                    seed = safe_int(team.get("Seed", 99), 99)
-                    filtered_seed_counts[name][seed] = filtered_seed_counts[name].get(seed, 0) + 1
-
-            for team_name, counts in filtered_seed_counts.items():
-                possible = sorted(counts.keys())
-
-                if len(possible) == 1:
-                    seed = possible[0]
-
-                    if seed <= 7:
-                        if_then.append({
-                            "Game": f"{winner} beats {loser}",
-                            "Result": f"{team_name} guaranteed #{seed} seed"
-                        })
-
-    # Keep it readable
-    if_then = if_then[:100]
-
-    warning = ""
-
-    if len(games) > max_games:
-        warning = f"Only the first {max_games} remaining games were simulated to keep the page fast."
+    if not if_then:
+        if_then.append({
+            "Game": "No single-game clinch found",
+            "Result": "The remaining playoff picture likely depends on multiple game results."
+        })
 
     return {
-        "games": games_to_simulate,
-        "total_scenarios": total_scenarios,
+        "games": games_to_show,
+        "total_scenarios": len(games_to_show) * 2,
         "team_results": team_results,
-        "if_then": if_then,
-        "warning": warning
+        "if_then": if_then[:100],
+        "warning": "Fast mode: this page shows single-game scenario impact only, so Render does not time out."
     }
 
 @app.route("/")
 def home():
     standings, schedule, last_error = load_data()
 
-    afc = sorted(
-        [team for team in standings if team.get("Conference") == "AFC"],
-        key=lambda x: safe_int(x.get("Seed", 99), 99)
-    )
+    afc = sorted([t for t in standings if t.get("Conference") == "AFC"], key=lambda x: safe_int(x.get("Seed", 99), 99))
+    nfc = sorted([t for t in standings if t.get("Conference") == "NFC"], key=lambda x: safe_int(x.get("Seed", 99), 99))
 
-    nfc = sorted(
-        [team for team in standings if team.get("Conference") == "NFC"],
-        key=lambda x: safe_int(x.get("Seed", 99), 99)
-    )
-
-    return render_template(
-        "index.html",
-        afc=afc,
-        nfc=nfc,
-        last_error=last_error
-    )
+    return render_template("index.html", afc=afc, nfc=nfc, last_error=last_error)
 
 @app.route("/schedule")
 def schedule():
     standings, schedule_rows, last_error = load_data()
-
-    return render_template(
-        "schedule.html",
-        schedule=schedule_rows,
-        last_error=last_error
-    )
+    return render_template("schedule.html", schedule=schedule_rows, last_error=last_error)
 
 @app.route("/draft")
 def draft():
     standings, schedule_rows, last_error = load_data()
     draft_order = build_draft_order(standings, schedule_rows)
-
-    return render_template(
-        "draft.html",
-        draft_order=draft_order,
-        last_error=last_error
-    )
+    return render_template("draft.html", draft_order=draft_order, last_error=last_error)
 
 @app.route("/scenarios")
 def scenarios():
     standings, schedule_rows, last_error = load_data()
     scenario_data = build_scenarios(standings, schedule_rows)
-
-    return render_template(
-        "scenarios.html",
-        scenario_data=scenario_data,
-        last_error=last_error
-    )
+    return render_template("scenarios.html", scenario_data=scenario_data, last_error=last_error)
 
 @app.route("/health")
 def health():
