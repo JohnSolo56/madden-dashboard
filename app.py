@@ -2,6 +2,8 @@ from flask import Flask, render_template
 import json
 import os
 import re
+import itertools
+from copy import deepcopy
 
 app = Flask(__name__)
 
@@ -140,6 +142,273 @@ def build_draft_order(standings, schedule):
 
     return draft_order
 
+def sort_for_seed(teams):
+    return sorted(
+        teams,
+        key=lambda t: (
+            safe_float(t.get("WinPct", 0)),
+            safe_float(t.get("DivisionPct", 0)),
+            safe_float(t.get("ConferencePct", 0)),
+            safe_int(t.get("Diff", 0)),
+            safe_int(t.get("PF", 0))
+        ),
+        reverse=True
+    )
+
+def reseed_after_results(standings):
+    teams = deepcopy(standings)
+
+    for team in teams:
+        wins = safe_int(team.get("Wins", 0))
+        losses = safe_int(team.get("Losses", 0))
+        ties = safe_int(team.get("Ties", 0))
+        total = wins + losses + ties
+
+        team["WinPct"] = round((wins + 0.5 * ties) / total, 3) if total else 0
+
+    final = []
+
+    for conf in ["AFC", "NFC"]:
+        conf_teams = [t for t in teams if t.get("Conference") == conf]
+
+        divisions = sorted(set(t.get("Division") for t in conf_teams))
+        division_winners = []
+
+        for division in divisions:
+            div_teams = [t for t in conf_teams if t.get("Division") == division]
+            if not div_teams:
+                continue
+
+            winner = sort_for_seed(div_teams)[0]
+            winner["DivisionWinner"] = True
+            division_winners.append(winner)
+
+        division_winners = sort_for_seed(division_winners)
+
+        for index, team in enumerate(division_winners, start=1):
+            team["Seed"] = index
+
+        winner_names = set(t.get("Team") for t in division_winners)
+
+        wildcards = [t for t in conf_teams if t.get("Team") not in winner_names]
+        wildcards = sort_for_seed(wildcards)
+
+        for index, team in enumerate(wildcards[:3], start=5):
+            team["Seed"] = index
+            team["DivisionWinner"] = False
+
+        for index, team in enumerate(wildcards[3:], start=8):
+            team["Seed"] = index
+            team["DivisionWinner"] = False
+
+        final.extend(division_winners + wildcards)
+
+    return final
+
+def clean_remaining_games(standings, schedule):
+    games = []
+
+    if schedule:
+        for game in schedule:
+            away = game.get("Away")
+            home = game.get("Home")
+            week = game.get("Week", "?")
+
+            if away and home:
+                games.append({
+                    "Week": week,
+                    "Away": away,
+                    "Home": home
+                })
+
+    if games:
+        unique = []
+        seen = set()
+
+        for game in games:
+            key = tuple(sorted([game["Away"], game["Home"]])) + (str(game["Week"]),)
+            if key not in seen:
+                seen.add(key)
+                unique.append(game)
+
+        return unique
+
+    # Backup: parse from RemainingGames text
+    seen = set()
+    for team in standings:
+        team_name = team.get("Team")
+        text = team.get("RemainingGames", "")
+
+        matches = re.findall(r"W(\d+):\s*([^,]+)", text)
+
+        for week, opponent in matches:
+            opponent = opponent.strip()
+            key = tuple(sorted([team_name, opponent])) + (week,)
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+            games.append({
+                "Week": week,
+                "Away": team_name,
+                "Home": opponent
+            })
+
+    return games
+
+def build_scenarios(standings, schedule):
+    games = clean_remaining_games(standings, schedule)
+
+    # Protect the website from exploding if there are too many games.
+    # 12 games = 4,096 combinations.
+    max_games = 12
+    games_to_simulate = games[:max_games]
+
+    if not games_to_simulate:
+        return {
+            "games": [],
+            "total_scenarios": 0,
+            "team_results": [],
+            "if_then": [],
+            "warning": "No remaining games were found in dashboard_data.json."
+        }
+
+    team_seed_counts = {}
+    team_playoff_counts = {}
+    team_total_counts = {}
+
+    for team in standings:
+        name = team.get("Team")
+        team_seed_counts[name] = {}
+        team_playoff_counts[name] = 0
+        team_total_counts[name] = 0
+
+    total_scenarios = 0
+
+    # 0 means Away wins. 1 means Home wins.
+    for combo in itertools.product([0, 1], repeat=len(games_to_simulate)):
+        total_scenarios += 1
+
+        simulated = deepcopy(standings)
+        team_map = {team.get("Team"): team for team in simulated}
+
+        for result, game in zip(combo, games_to_simulate):
+            away = game["Away"]
+            home = game["Home"]
+
+            if away not in team_map or home not in team_map:
+                continue
+
+            if result == 0:
+                team_map[away]["Wins"] = safe_int(team_map[away].get("Wins", 0)) + 1
+                team_map[home]["Losses"] = safe_int(team_map[home].get("Losses", 0)) + 1
+            else:
+                team_map[home]["Wins"] = safe_int(team_map[home].get("Wins", 0)) + 1
+                team_map[away]["Losses"] = safe_int(team_map[away].get("Losses", 0)) + 1
+
+        reseeded = reseed_after_results(simulated)
+
+        for team in reseeded:
+            name = team.get("Team")
+            seed = safe_int(team.get("Seed", 99), 99)
+
+            team_total_counts[name] += 1
+            team_seed_counts[name][seed] = team_seed_counts[name].get(seed, 0) + 1
+
+            if seed <= 7:
+                team_playoff_counts[name] += 1
+
+    team_results = []
+
+    for team_name in sorted(team_seed_counts.keys()):
+        counts = team_seed_counts[team_name]
+        possible_seeds = sorted(counts.keys())
+
+        guaranteed_seed = None
+        if len(possible_seeds) == 1:
+            guaranteed_seed = possible_seeds[0]
+
+        playoff_odds = round((team_playoff_counts[team_name] / total_scenarios) * 100, 1) if total_scenarios else 0
+
+        team_results.append({
+            "Team": team_name,
+            "PossibleSeeds": ", ".join(str(seed) for seed in possible_seeds),
+            "GuaranteedSeed": guaranteed_seed if guaranteed_seed is not None else "",
+            "PlayoffOdds": playoff_odds
+        })
+
+    if_then = []
+
+    for game in games_to_simulate:
+        for winner, loser in [(game["Away"], game["Home"]), (game["Home"], game["Away"])]:
+            filtered_seed_counts = {}
+            filtered_total = 0
+
+            for team in standings:
+                filtered_seed_counts[team.get("Team")] = {}
+
+            other_games = [g for g in games_to_simulate if g != game]
+
+            for combo in itertools.product([0, 1], repeat=len(other_games)):
+                filtered_total += 1
+
+                simulated = deepcopy(standings)
+                team_map = {team.get("Team"): team for team in simulated}
+
+                if winner in team_map and loser in team_map:
+                    team_map[winner]["Wins"] = safe_int(team_map[winner].get("Wins", 0)) + 1
+                    team_map[loser]["Losses"] = safe_int(team_map[loser].get("Losses", 0)) + 1
+
+                for result, other_game in zip(combo, other_games):
+                    away = other_game["Away"]
+                    home = other_game["Home"]
+
+                    if away not in team_map or home not in team_map:
+                        continue
+
+                    if result == 0:
+                        team_map[away]["Wins"] = safe_int(team_map[away].get("Wins", 0)) + 1
+                        team_map[home]["Losses"] = safe_int(team_map[home].get("Losses", 0)) + 1
+                    else:
+                        team_map[home]["Wins"] = safe_int(team_map[home].get("Wins", 0)) + 1
+                        team_map[away]["Losses"] = safe_int(team_map[away].get("Losses", 0)) + 1
+
+                reseeded = reseed_after_results(simulated)
+
+                for team in reseeded:
+                    name = team.get("Team")
+                    seed = safe_int(team.get("Seed", 99), 99)
+                    filtered_seed_counts[name][seed] = filtered_seed_counts[name].get(seed, 0) + 1
+
+            for team_name, counts in filtered_seed_counts.items():
+                possible = sorted(counts.keys())
+
+                if len(possible) == 1:
+                    seed = possible[0]
+
+                    if seed <= 7:
+                        if_then.append({
+                            "Game": f"{winner} beats {loser}",
+                            "Result": f"{team_name} guaranteed #{seed} seed"
+                        })
+
+    # Keep it readable
+    if_then = if_then[:100]
+
+    warning = ""
+
+    if len(games) > max_games:
+        warning = f"Only the first {max_games} remaining games were simulated to keep the page fast."
+
+    return {
+        "games": games_to_simulate,
+        "total_scenarios": total_scenarios,
+        "team_results": team_results,
+        "if_then": if_then,
+        "warning": warning
+    }
+
 @app.route("/")
 def home():
     standings, schedule, last_error = load_data()
@@ -179,6 +448,17 @@ def draft():
     return render_template(
         "draft.html",
         draft_order=draft_order,
+        last_error=last_error
+    )
+
+@app.route("/scenarios")
+def scenarios():
+    standings, schedule_rows, last_error = load_data()
+    scenario_data = build_scenarios(standings, schedule_rows)
+
+    return render_template(
+        "scenarios.html",
+        scenario_data=scenario_data,
         last_error=last_error
     )
 

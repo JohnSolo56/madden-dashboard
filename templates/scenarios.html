@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playoff Scenarios</title>
+    <meta http-equiv="refresh" content="300">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b0c10;
+            color: white;
+        }
+
+        .header {
+            background: #111827;
+            padding: 22px;
+            text-align: center;
+            border-bottom: 4px solid #d71920;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            margin-top: 8px;
+        }
+
+        .nav {
+            margin-top: 14px;
+        }
+
+        .nav a {
+            color: white;
+            background: #d71920;
+            padding: 9px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .container {
+            width: 92%;
+            margin: 25px auto;
+        }
+
+        .card {
+            background: #1f2937;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #374151;
+            box-shadow: 0 0 18px rgba(0,0,0,0.45);
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            background: #d71920;
+            padding: 14px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .summary {
+            padding: 18px;
+            text-align: center;
+            color: #e5e7eb;
+            line-height: 1.5;
+        }
+
+        .warning {
+            background: #78350f;
+            color: #fde68a;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #111827;
+            color: #f9fafb;
+            padding: 11px 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #374151;
+        }
+
+        td {
+            padding: 11px 8px;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background: #263244;
+        }
+
+        tr:hover {
+            background: #374151;
+        }
+
+        .team {
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .good {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .mid {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        .bad {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .scenario {
+            text-align: left;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .result {
+            text-align: left;
+        }
+
+        .note {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            margin: 25px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🧠 Playoff Scenario Machine</h1>
+    <p>Every possible win/loss combo from the remaining schedule, projected through current NFL-style seeding logic</p>
+
+    <div class="nav">
+        <a href="/">Playoff Picture</a>
+        <a href="/schedule">Remaining Schedule</a>
+        <a href="/draft">Draft Order</a>
+        <a href="/scenarios">Scenarios</a>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if scenario_data.warning %}
+    <div class="warning">
+        {{ scenario_data.warning }}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-title">Scenario Summary</div>
+        <div class="summary">
+            <div><strong>Total simulated outcomes:</strong> {{ scenario_data.total_scenarios }}</div>
+            <div><strong>Games included:</strong> {{ scenario_data.games|length }}</div>
+            <div>
+                This page answers questions like:
+                <strong>“If Colts beat Patriots, what seeds become guaranteed?”</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Games Being Simulated</div>
+        <table>
+            <tr>
+                <th>Week</th>
+                <th>Away</th>
+                <th>Home</th>
+            </tr>
+
+            {% for game in scenario_data.games %}
+            <tr>
+                <td>Week {{ game.Week }}</td>
+                <td class="team">{{ game.Away }}</td>
+                <td class="team">{{ game.Home }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Team Seed Possibilities</div>
+        <table>
+            <tr>
+                <th>Team</th>
+                <th>Possible Seeds</th>
+                <th>Guaranteed Seed</th>
+                <th>Playoff Odds</th>
+            </tr>
+
+            {% for team in scenario_data.team_results %}
+            <tr>
+                <td class="team">{{ team.Team }}</td>
+                <td>{{ team.PossibleSeeds }}</td>
+
+                {% if team.GuaranteedSeed %}
+                    <td class="good">#{{ team.GuaranteedSeed }}</td>
+                {% else %}
+                    <td>—</td>
+                {% endif %}
+
+                {% if team.PlayoffOdds >= 90 %}
+                    <td class="good">{{ team.PlayoffOdds }}%</td>
+                {% elif team.PlayoffOdds >= 50 %}
+                    <td class="mid">{{ team.PlayoffOdds }}%</td>
+                {% else %}
+                    <td class="bad">{{ team.PlayoffOdds }}%</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-title">If / Then Guarantees</div>
+        <table>
+            <tr>
+                <th>If This Happens</th>
+                <th>Then This Is Guaranteed</th>
+            </tr>
+
+            {% for item in scenario_data.if_then %}
+            <tr>
+                <td class="scenario">{{ item.Game }}</td>
+                <td class="result">{{ item.Result }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <p class="note">
+        This is a projected scenario engine using the same seeding model as your dashboard. 
+        Exact real NFL tiebreakers like full head-to-head/common-games can only be perfect if every completed game result is stored in the data file.
+    </p>
+
+</div>
+
+</body>
+</html>
