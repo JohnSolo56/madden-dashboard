@@ -24,8 +24,8 @@
       "Status": "#1 Seed",
       "MagicNumber": "0",
       "Remaining": 2,
-      "RemainingGames": "W15: Bears, W17: Oilers, W18: Jaguars",
-      "AvgDifficulty": 0.758
+      "RemainingGames": "W15: Bears, W18: Jaguars",
+      "AvgDifficulty": 0.738
     },
     {
       "Conference": "AFC",
@@ -51,8 +51,8 @@
       "Status": "Division Leader",
       "MagicNumber": "0",
       "Remaining": 1,
-      "RemainingGames": "W16: 49ers, W17: Lions, W18: Colts",
-      "AvgDifficulty": 0.51
+      "RemainingGames": "W18: Colts",
+      "AvgDifficulty": 0.688
     },
     {
       "Conference": "AFC",
@@ -78,8 +78,8 @@
       "Status": "Division Leader",
       "MagicNumber": "0",
       "Remaining": 2,
-      "RemainingGames": "W17: Texans, W18: Cardinals",
-      "AvgDifficulty": 0.733
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -105,8 +105,8 @@
       "Status": "Division Leader",
       "MagicNumber": "3",
       "Remaining": 2,
-      "RemainingGames": "W15: Jaguars, W17: Browns, W18: Commanders",
-      "AvgDifficulty": 0.492
+      "RemainingGames": "W15: Jaguars",
+      "AvgDifficulty": 0.875
     },
     {
       "Conference": "AFC",
@@ -132,8 +132,8 @@
       "Status": "In Playoffs",
       "MagicNumber": "0",
       "Remaining": 1,
-      "RemainingGames": "W15: Bengals, W16: Ravens, W17: Colts, W18: Texans",
-      "AvgDifficulty": 0.572
+      "RemainingGames": "W18: Texans",
+      "AvgDifficulty": 0.933
     },
     {
       "Conference": "AFC",
@@ -159,7 +159,7 @@
       "Status": "In Playoffs",
       "MagicNumber": "1",
       "Remaining": 1,
-      "RemainingGames": "W17: Jaguars, W18: Patriots",
+      "RemainingGames": "W18: Patriots",
       "AvgDifficulty": 0.875
     },
     {
@@ -186,8 +186,8 @@
       "Status": "In Playoffs",
       "MagicNumber": "3",
       "Remaining": 2,
-      "RemainingGames": "W17: Bears, W18: Bills",
-      "AvgDifficulty": 0.433
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -213,8 +213,8 @@
       "Status": "",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Vikings, W18: Chargers",
-      "AvgDifficulty": 0.4
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -240,8 +240,8 @@
       "Status": "",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W15: Seahawks, W17: Raiders, W18: Dolphins",
-      "AvgDifficulty": 0.496
+      "RemainingGames": "W15: Seahawks",
+      "AvgDifficulty": 0.688
     },
     {
       "Conference": "AFC",
@@ -267,8 +267,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Titans, W18: Browns",
-      "AvgDifficulty": 0.3
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -294,8 +294,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Bengals, W18: Steelers",
-      "AvgDifficulty": 0.467
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -321,8 +321,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Bills, W18: Rams",
-      "AvgDifficulty": 0.167
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -348,8 +348,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Chiefs, W18: Bisons",
-      "AvgDifficulty": 0.433
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -375,8 +375,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Steelers, W18: Giants",
-      "AvgDifficulty": 0.3
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -402,8 +402,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Chargers, W18: Falcons",
-      "AvgDifficulty": 0.567
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "AFC",
@@ -429,8 +429,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W16: Jaguars, W17: Armadillos, W18: Saints",
-      "AvgDifficulty": 0.683
+      "RemainingGames": "W16: Jaguars",
+      "AvgDifficulty": 0.875
     },
     {
       "Conference": "NFC",
@@ -456,8 +456,8 @@
       "Status": "#1 Seed",
       "MagicNumber": "0",
       "Remaining": 2,
-      "RemainingGames": "W16: Bears, W17: 49ers, W18: Eagles",
-      "AvgDifficulty": 0.522
+      "RemainingGames": "W17: 49ers, W18: Eagles",
+      "AvgDifficulty": 0.483
     },
     {
       "Conference": "NFC",
@@ -483,8 +483,8 @@
       "Status": "Division Leader",
       "MagicNumber": "0",
       "Remaining": 2,
-      "RemainingGames": "W17: Ravens, W18: Packers",
-      "AvgDifficulty": 0.2
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "NFC",
@@ -510,8 +510,8 @@
       "Status": "Division Leader",
       "MagicNumber": "0",
       "Remaining": 1,
-      "RemainingGames": "W15: Chargers, W16: Lions, W17: Eagles, W18: 49ers",
-      "AvgDifficulty": 0.469
+      "RemainingGames": "W18: 49ers",
+      "AvgDifficulty": 0.467
     },
     {
       "Conference": "NFC",
@@ -537,8 +537,8 @@
       "Status": "Division Leader",
       "MagicNumber": "1",
       "Remaining": 2,
-      "RemainingGames": "W15: Texans, W16: Cowboys, W17: Bisons, W18: Buccaneers",
-      "AvgDifficulty": 0.772
+      "RemainingGames": "W15: Texans, W16: Cowboys",
+      "AvgDifficulty": 0.9
     },
     {
       "Conference": "NFC",
@@ -564,8 +564,8 @@
       "Status": "In Playoffs",
       "MagicNumber": "0",
       "Remaining": 1,
-      "RemainingGames": "W18: Bears",
-      "AvgDifficulty": 0.6
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "NFC",
@@ -591,8 +591,8 @@
       "Status": "In Playoffs",
       "MagicNumber": "1",
       "Remaining": 2,
-      "RemainingGames": "W15: Vikings, W17: Packers, W18: Raiders",
-      "AvgDifficulty": 0.267
+      "RemainingGames": "W15: Vikings, W17: Packers",
+      "AvgDifficulty": 0.3
     },
     {
       "Conference": "NFC",
@@ -618,8 +618,8 @@
       "Status": "In Playoffs",
       "MagicNumber": "2",
       "Remaining": 2,
-      "RemainingGames": "W15: 49ers, W17: Rams, W18: Oilers",
-      "AvgDifficulty": 0.444
+      "RemainingGames": "W15: 49ers",
+      "AvgDifficulty": 0.467
     },
     {
       "Conference": "NFC",
@@ -645,8 +645,8 @@
       "Status": "",
       "MagicNumber": "",
       "Remaining": 1,
-      "RemainingGames": "W17: Seahawks, W18: Cowboys",
-      "AvgDifficulty": 0.777
+      "RemainingGames": "W18: Cowboys",
+      "AvgDifficulty": 0.867
     },
     {
       "Conference": "NFC",
@@ -672,8 +672,8 @@
       "Status": "",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W15: Cardinals, W16: Patriots, W17: Cowboys, W18: Seahawks",
-      "AvgDifficulty": 0.741
+      "RemainingGames": "W17: Cowboys, W18: Seahawks",
+      "AvgDifficulty": 0.777
     },
     {
       "Conference": "NFC",
@@ -699,8 +699,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 1,
-      "RemainingGames": "W16: Seahawks, W17: Patriots, W18: Vikings",
-      "AvgDifficulty": 0.61
+      "RemainingGames": "W18: Vikings",
+      "AvgDifficulty": 0.267
     },
     {
       "Conference": "NFC",
@@ -726,8 +726,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 1,
-      "RemainingGames": "W18: Ravens",
-      "AvgDifficulty": 0.067
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "NFC",
@@ -753,8 +753,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Falcons, W18: Armadillos",
-      "AvgDifficulty": 0.7
+      "RemainingGames": "W17: Falcons",
+      "AvgDifficulty": 0.6
     },
     {
       "Conference": "NFC",
@@ -780,8 +780,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Giants, W18: Bengals",
-      "AvgDifficulty": 0.433
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "NFC",
@@ -807,8 +807,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Commanders, W18: Titans",
-      "AvgDifficulty": 0.267
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     },
     {
       "Conference": "NFC",
@@ -834,8 +834,8 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W15: Falcons, W17: Dolphins, W18: Lions",
-      "AvgDifficulty": 0.525
+      "RemainingGames": "W15: Falcons, W18: Lions",
+      "AvgDifficulty": 0.487
     },
     {
       "Conference": "NFC",
@@ -861,11 +861,123 @@
       "Status": "Eliminated",
       "MagicNumber": "",
       "Remaining": 2,
-      "RemainingGames": "W17: Cardinals, W18: Chiefs",
-      "AvgDifficulty": 0.4
+      "RemainingGames": "Opponent names unavailable",
+      "AvgDifficulty": 0.0
     }
   ],
   "schedule": [
+    {
+      "Week": 18,
+      "Away": "Jaguars",
+      "Home": "Texans",
+      "AwayRecord": "14-2",
+      "HomeRecord": "14-1",
+      "Difficulty": 0.904
+    },
+    {
+      "Week": 18,
+      "Away": "Cowboys",
+      "Home": "Eagles",
+      "AwayRecord": "13-2",
+      "HomeRecord": "8-8",
+      "Difficulty": 0.683
+    },
+    {
+      "Week": 18,
+      "Away": "Colts",
+      "Home": "Patriots",
+      "AwayRecord": "11-5",
+      "HomeRecord": "14-2",
+      "Difficulty": 0.781
+    },
+    {
+      "Week": 18,
+      "Away": "Lions",
+      "Home": "Vikings",
+      "AwayRecord": "6-10",
+      "HomeRecord": "4-11",
+      "Difficulty": 0.321
+    },
+    {
+      "Week": 18,
+      "Away": "49ers",
+      "Home": "Seahawks",
+      "AwayRecord": "7-8",
+      "HomeRecord": "11-5",
+      "Difficulty": 0.577
+    },
+    {
+      "Week": 17,
+      "Away": "Lions",
+      "Home": "Patriots",
+      "AwayRecord": "6-10",
+      "HomeRecord": "14-2",
+      "Difficulty": 0.625
+    },
+    {
+      "Week": 17,
+      "Away": "Falcons",
+      "Home": "Packers",
+      "AwayRecord": "9-6",
+      "HomeRecord": "5-10",
+      "Difficulty": 0.467
+    },
+    {
+      "Week": 17,
+      "Away": "Colts",
+      "Home": "Jaguars",
+      "AwayRecord": "11-5",
+      "HomeRecord": "14-2",
+      "Difficulty": 0.781
+    },
+    {
+      "Week": 17,
+      "Away": "Eagles",
+      "Home": "Seahawks",
+      "AwayRecord": "8-8",
+      "HomeRecord": "11-5",
+      "Difficulty": 0.594
+    },
+    {
+      "Week": 17,
+      "Away": "49ers",
+      "Home": "Cowboys",
+      "AwayRecord": "7-8",
+      "HomeRecord": "13-2",
+      "Difficulty": 0.667
+    },
+    {
+      "Week": 16,
+      "Away": "Lions",
+      "Home": "Seahawks",
+      "AwayRecord": "6-10",
+      "HomeRecord": "11-5",
+      "Difficulty": 0.531
+    },
+    {
+      "Week": 16,
+      "Away": "Jaguars",
+      "Home": "Ravens",
+      "AwayRecord": "14-2",
+      "HomeRecord": "1-14",
+      "Difficulty": 0.471
+    },
+    {
+      "Week": 16,
+      "Away": "49ers",
+      "Home": "Patriots",
+      "AwayRecord": "7-8",
+      "HomeRecord": "14-2",
+      "Difficulty": 0.671
+    },
+    {
+      "Week": 16,
+      "Away": "Bears",
+      "Home": "Cowboys",
+      "AwayRecord": "9-6",
+      "HomeRecord": "13-2",
+      "Difficulty": 0.733
+    },
     {
       "Week": 15,
       "Away": "Falcons",
@@ -905,286 +1017,455 @@
       "AwayRecord": "9-6",
       "HomeRecord": "14-2",
       "Difficulty": 0.738
-    },
-    {
-      "Week": 16,
-      "Away": "Lions",
-      "Home": "Seahawks",
-      "AwayRecord": "6-10",
-      "HomeRecord": "11-5",
-      "Difficulty": 0.531
-    },
-    {
-      "Week": 16,
-      "Away": "Jaguars",
-      "Home": "Ravens",
-      "AwayRecord": "14-2",
-      "HomeRecord": "1-14",
-      "Difficulty": 0.471
-    },
-    {
-      "Week": 16,
-      "Away": "49ers",
-      "Home": "Patriots",
-      "AwayRecord": "7-8",
-      "HomeRecord": "14-2",
-      "Difficulty": 0.671
-    },
-    {
-      "Week": 16,
-      "Away": "Bears",
-      "Home": "Cowboys",
-      "AwayRecord": "9-6",
-      "HomeRecord": "13-2",
-      "Difficulty": 0.733
-    },
-    {
-      "Week": 17,
-      "Away": "Oilers",
-      "Home": "Texans",
-      "AwayRecord": "12-3",
-      "HomeRecord": "14-1",
-      "Difficulty": 0.867
-    },
-    {
-      "Week": 17,
-      "Away": "Steelers",
-      "Home": "Titans",
-      "AwayRecord": "5-10",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.3
-    },
-    {
-      "Week": 17,
-      "Away": "Lions",
-      "Home": "Patriots",
-      "AwayRecord": "6-10",
-      "HomeRecord": "14-2",
-      "Difficulty": 0.625
-    },
-    {
-      "Week": 17,
-      "Away": "Falcons",
-      "Home": "Packers",
-      "AwayRecord": "9-6",
-      "HomeRecord": "5-10",
-      "Difficulty": 0.467
-    },
-    {
-      "Week": 17,
-      "Away": "Bears",
-      "Home": "Bisons",
-      "AwayRecord": "9-6",
-      "HomeRecord": "9-6",
-      "Difficulty": 0.6
-    },
-    {
-      "Week": 17,
-      "Away": "Dolphins",
-      "Home": "Vikings",
-      "AwayRecord": "9-6",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.433
-    },
-    {
-      "Week": 17,
-      "Away": "Cardinals",
-      "Home": "Rams",
-      "AwayRecord": "8-7",
-      "HomeRecord": "1-14",
-      "Difficulty": 0.3
-    },
-    {
-      "Week": 17,
-      "Away": "Chargers",
-      "Home": "Raiders",
-      "AwayRecord": "8-7",
-      "HomeRecord": "3-12",
-      "Difficulty": 0.367
-    },
-    {
-      "Week": 17,
-      "Away": "Colts",
-      "Home": "Jaguars",
-      "AwayRecord": "11-5",
-      "HomeRecord": "14-2",
-      "Difficulty": 0.781
-    },
-    {
-      "Week": 17,
-      "Away": "Armadillos",
-      "Home": "Ravens",
-      "AwayRecord": "12-3",
-      "HomeRecord": "1-14",
-      "Difficulty": 0.433
-    },
-    {
-      "Week": 17,
-      "Away": "Bengals",
-      "Home": "Browns",
-      "AwayRecord": "9-6",
-      "HomeRecord": "5-10",
-      "Difficulty": 0.467
-    },
-    {
-      "Week": 17,
-      "Away": "Eagles",
-      "Home": "Seahawks",
-      "AwayRecord": "8-8",
-      "HomeRecord": "11-5",
-      "Difficulty": 0.594
-    },
-    {
-      "Week": 17,
-      "Away": "Bills",
-      "Home": "Chiefs",
-      "AwayRecord": "4-11",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.267
-    },
-    {
-      "Week": 17,
-      "Away": "Commanders",
-      "Home": "Giants",
-      "AwayRecord": "4-11",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.267
-    },
-    {
-      "Week": 17,
-      "Away": "49ers",
-      "Home": "Cowboys",
-      "AwayRecord": "7-8",
-      "HomeRecord": "13-2",
-      "Difficulty": 0.667
-    },
-    {
-      "Week": 18,
-      "Away": "Jaguars",
-      "Home": "Texans",
-      "AwayRecord": "14-2",
-      "HomeRecord": "14-1",
-      "Difficulty": 0.904
-    },
-    {
-      "Week": 18,
-      "Away": "Cowboys",
-      "Home": "Eagles",
-      "AwayRecord": "13-2",
-      "HomeRecord": "8-8",
-      "Difficulty": 0.683
-    },
-    {
-      "Week": 18,
-      "Away": "Ravens",
-      "Home": "Saints",
-      "AwayRecord": "1-14",
-      "HomeRecord": "6-10",
-      "Difficulty": 0.221
-    },
-    {
-      "Week": 18,
-      "Away": "Browns",
-      "Home": "Steelers",
-      "AwayRecord": "5-10",
-      "HomeRecord": "5-10",
-      "Difficulty": 0.333
-    },
-    {
-      "Week": 18,
-      "Away": "Colts",
-      "Home": "Patriots",
-      "AwayRecord": "11-5",
-      "HomeRecord": "14-2",
-      "Difficulty": 0.781
-    },
-    {
-      "Week": 18,
-      "Away": "Lions",
-      "Home": "Vikings",
-      "AwayRecord": "6-10",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.321
-    },
-    {
-      "Week": 18,
-      "Away": "Bengals",
-      "Home": "Commanders",
-      "AwayRecord": "9-6",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.433
-    },
-    {
-      "Week": 18,
-      "Away": "Armadillos",
-      "Home": "Packers",
-      "AwayRecord": "12-3",
-      "HomeRecord": "5-10",
-      "Difficulty": 0.567
-    },
-    {
-      "Week": 18,
-      "Away": "Chargers",
-      "Home": "Dolphins",
-      "AwayRecord": "8-7",
-      "HomeRecord": "9-6",
-      "Difficulty": 0.567
-    },
-    {
-      "Week": 18,
-      "Away": "Giants",
-      "Home": "Titans",
-      "AwayRecord": "4-11",
-      "HomeRecord": "4-11",
-      "Difficulty": 0.267
-    },
-    {
-      "Week": 18,
-      "Away": "Chiefs",
-      "Home": "Rams",
-      "AwayRecord": "4-11",
-      "HomeRecord": "1-14",
-      "Difficulty": 0.167
-    },
-    {
-      "Week": 18,
-      "Away": "Bills",
-      "Home": "Bisons",
-      "AwayRecord": "4-11",
-      "HomeRecord": "9-6",
-      "Difficulty": 0.433
-    },
-    {
-      "Week": 18,
-      "Away": "Cardinals",
-      "Home": "Oilers",
-      "AwayRecord": "8-7",
-      "HomeRecord": "12-3",
-      "Difficulty": 0.667
-    },
-    {
-      "Week": 18,
-      "Away": "Falcons",
-      "Home": "Raiders",
-      "AwayRecord": "9-6",
-      "HomeRecord": "3-12",
-      "Difficulty": 0.4
-    },
-    {
-      "Week": 18,
-      "Away": "49ers",
-      "Home": "Seahawks",
-      "AwayRecord": "7-8",
-      "HomeRecord": "11-5",
-      "Difficulty": 0.577
-    },
-    {
-      "Week": 18,
-      "Away": "Bears",
-      "Home": "Buccaneers",
-      "AwayRecord": "9-6",
-      "HomeRecord": "11-5",
-      "Difficulty": 0.644
     }
-  ]
+  ],
+  "scenario_data": {
+    "games": [
+      {
+        "Week": "18",
+        "Away": "Jaguars",
+        "Home": "Texans"
+      },
+      {
+        "Week": "18",
+        "Away": "Cowboys",
+        "Home": "Eagles"
+      },
+      {
+        "Week": "18",
+        "Away": "Colts",
+        "Home": "Patriots"
+      },
+      {
+        "Week": "18",
+        "Away": "Lions",
+        "Home": "Vikings"
+      },
+      {
+        "Week": "18",
+        "Away": "49ers",
+        "Home": "Seahawks"
+      },
+      {
+        "Week": "17",
+        "Away": "Lions",
+        "Home": "Patriots"
+      },
+      {
+        "Week": "17",
+        "Away": "Falcons",
+        "Home": "Packers"
+      },
+      {
+        "Week": "17",
+        "Away": "Colts",
+        "Home": "Jaguars"
+      },
+      {
+        "Week": "17",
+        "Away": "Eagles",
+        "Home": "Seahawks"
+      },
+      {
+        "Week": "17",
+        "Away": "49ers",
+        "Home": "Cowboys"
+      },
+      {
+        "Week": "16",
+        "Away": "Lions",
+        "Home": "Seahawks"
+      },
+      {
+        "Week": "16",
+        "Away": "Jaguars",
+        "Home": "Ravens"
+      },
+      {
+        "Week": "16",
+        "Away": "49ers",
+        "Home": "Patriots"
+      },
+      {
+        "Week": "16",
+        "Away": "Bears",
+        "Home": "Cowboys"
+      },
+      {
+        "Week": "15",
+        "Away": "Falcons",
+        "Home": "Vikings"
+      },
+      {
+        "Week": "15",
+        "Away": "Bears",
+        "Home": "Texans"
+      },
+      {
+        "Week": "15",
+        "Away": "49ers",
+        "Home": "Cardinals"
+      },
+      {
+        "Week": "15",
+        "Away": "Chargers",
+        "Home": "Seahawks"
+      },
+      {
+        "Week": "15",
+        "Away": "Bengals",
+        "Home": "Jaguars"
+      }
+    ],
+    "total_scenarios": 524288,
+    "team_results": [
+      {
+        "Team": "49ers",
+        "PossibleSeeds": "3, 4, 6, 7, 8, 9, 10, 11, 12",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 20.3
+      },
+      {
+        "Team": "Armadillos",
+        "PossibleSeeds": "1, 2",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Bears",
+        "PossibleSeeds": "3, 4",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Bengals",
+        "PossibleSeeds": "4",
+        "GuaranteedSeed": 4,
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Bills",
+        "PossibleSeeds": "13",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Bisons",
+        "PossibleSeeds": "7",
+        "GuaranteedSeed": 7,
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Browns",
+        "PossibleSeeds": "11",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Buccaneers",
+        "PossibleSeeds": "5",
+        "GuaranteedSeed": 5,
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Cardinals",
+        "PossibleSeeds": "3, 4, 6, 7, 8, 9",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 56.2
+      },
+      {
+        "Team": "Chargers",
+        "PossibleSeeds": "9",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Chiefs",
+        "PossibleSeeds": "12",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Colts",
+        "PossibleSeeds": "5, 6",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Commanders",
+        "PossibleSeeds": "13, 14",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Cowboys",
+        "PossibleSeeds": "1, 2, 3",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Dolphins",
+        "PossibleSeeds": "8",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Eagles",
+        "PossibleSeeds": "6, 7, 8, 9, 10",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 28.4
+      },
+      {
+        "Team": "Falcons",
+        "PossibleSeeds": "6, 7, 8",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 96.5
+      },
+      {
+        "Team": "Giants",
+        "PossibleSeeds": "14, 15",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Jaguars",
+        "PossibleSeeds": "1, 2, 5, 6",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Lions",
+        "PossibleSeeds": "8, 9, 10, 11, 12, 13",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Oilers",
+        "PossibleSeeds": "2, 3",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Packers",
+        "PossibleSeeds": "9, 10, 11, 12, 13",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Patriots",
+        "PossibleSeeds": "1, 2, 3",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Raiders",
+        "PossibleSeeds": "15",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Rams",
+        "PossibleSeeds": "16",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Ravens",
+        "PossibleSeeds": "16",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Saints",
+        "PossibleSeeds": "9, 10, 11, 12",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Seahawks",
+        "PossibleSeeds": "2, 3, 4, 6, 7, 8",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 98.5
+      },
+      {
+        "Team": "Steelers",
+        "PossibleSeeds": "10",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Texans",
+        "PossibleSeeds": "1, 2, 5",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 100.0
+      },
+      {
+        "Team": "Titans",
+        "PossibleSeeds": "14",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      },
+      {
+        "Team": "Vikings",
+        "PossibleSeeds": "11, 12, 13, 15",
+        "GuaranteedSeed": "",
+        "PlayoffOdds": 0.0
+      }
+    ],
+    "if_then": [
+      {
+        "Game": "Jaguars wins W18: Jaguars vs Texans",
+        "Result": "Bengals guaranteed #4 seed; Colts guaranteed #6 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Texans wins W18: Jaguars vs Texans",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Cowboys wins W18: Cowboys vs Eagles",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Eagles wins W18: Cowboys vs Eagles",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Colts wins W18: Colts vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Patriots wins W18: Colts vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Colts guaranteed #6 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Lions wins W18: Lions vs Vikings",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Vikings wins W18: Lions vs Vikings",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "49ers wins W18: 49ers vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Seahawks wins W18: 49ers vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Lions wins W17: Lions vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Patriots wins W17: Lions vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Falcons wins W17: Falcons vs Packers",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed; Falcons guaranteed #6 seed"
+      },
+      {
+        "Game": "Packers wins W17: Falcons vs Packers",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Colts wins W17: Colts vs Jaguars",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Jaguars wins W17: Colts vs Jaguars",
+        "Result": "Bengals guaranteed #4 seed; Colts guaranteed #6 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Eagles wins W17: Eagles vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Seahawks wins W17: Eagles vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "49ers wins W17: 49ers vs Cowboys",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Cowboys wins W17: 49ers vs Cowboys",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Lions wins W16: Lions vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Seahawks wins W16: Lions vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Jaguars wins W16: Jaguars vs Ravens",
+        "Result": "Bengals guaranteed #4 seed; Colts guaranteed #6 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Ravens wins W16: Jaguars vs Ravens",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "49ers wins W16: 49ers vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Patriots wins W16: 49ers vs Patriots",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Bears wins W16: Bears vs Cowboys",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Cowboys wins W16: Bears vs Cowboys",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Falcons wins W15: Falcons vs Vikings",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed; Falcons guaranteed #6 seed"
+      },
+      {
+        "Game": "Vikings wins W15: Falcons vs Vikings",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Bears wins W15: Bears vs Texans",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Texans wins W15: Bears vs Texans",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "49ers wins W15: 49ers vs Cardinals",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Cardinals wins W15: 49ers vs Cardinals",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Chargers wins W15: Chargers vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Seahawks wins W15: Chargers vs Seahawks",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Bengals wins W15: Bengals vs Jaguars",
+        "Result": "Bengals guaranteed #4 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      },
+      {
+        "Game": "Jaguars wins W15: Bengals vs Jaguars",
+        "Result": "Bengals guaranteed #4 seed; Colts guaranteed #6 seed; Bisons guaranteed #7 seed; Buccaneers guaranteed #5 seed"
+      }
+    ],
+    "warning": ""
+  }
 }
