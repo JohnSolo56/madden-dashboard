@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Playoff Scenarios</title>
-    <meta http-equiv="refresh" content="300">
+    <title>Playoff Machine</title>
+
     <style>
         body {
             margin: 0;
@@ -23,13 +23,8 @@
             font-size: 34px;
         }
 
-        .header p {
-            color: #cbd5e1;
-            margin-top: 8px;
-        }
-
         .nav {
-            margin-top: 14px;
+            margin-top: 15px;
         }
 
         .nav a {
@@ -43,7 +38,7 @@
         }
 
         .container {
-            width: 92%;
+            width: 95%;
             margin: 25px auto;
         }
 
@@ -52,30 +47,14 @@
             border-radius: 10px;
             overflow: hidden;
             border: 1px solid #374151;
-            box-shadow: 0 0 18px rgba(0,0,0,0.45);
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .card-title {
             background: #d71920;
             padding: 14px;
+            text-align: center;
             font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .summary {
-            padding: 18px;
-            text-align: center;
-            color: #e5e7eb;
-            line-height: 1.5;
-        }
-
-        .warning {
-            background: #78350f;
-            color: #fde68a;
-            padding: 12px;
-            text-align: center;
             font-weight: bold;
         }
 
@@ -86,63 +65,91 @@
 
         th {
             background: #111827;
-            color: #f9fafb;
-            padding: 11px 8px;
+            padding: 10px;
             font-size: 12px;
             text-transform: uppercase;
-            border-bottom: 1px solid #374151;
         }
 
         td {
-            padding: 11px 8px;
+            padding: 10px;
             text-align: center;
             border-bottom: 1px solid #374151;
-            font-size: 14px;
         }
 
         tr:nth-child(even) {
             background: #263244;
         }
 
-        tr:hover {
-            background: #374151;
+        select {
+            background: #111827;
+            color: white;
+            padding: 7px;
+            border-radius: 6px;
+            border: 1px solid #4b5563;
+            width: 180px;
         }
 
-        .team {
+        .submit-btn {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            font-weight: bold;
+        }
+
+        .conference-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .team-name {
             font-weight: bold;
             text-align: left;
         }
 
-        .good {
-            color: #22c55e;
-            font-weight: bold;
-        }
-
-        .mid {
+        .seed {
             color: #facc15;
             font-weight: bold;
         }
 
-        .bad {
-            color: #ef4444;
+        .bracket-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .matchup {
+            background: #111827;
+            margin: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+
+        .matchup-title {
+            background: #374151;
+            padding: 10px;
             font-weight: bold;
         }
 
-        .scenario {
-            text-align: left;
-            font-weight: bold;
-            color: #38bdf8;
+        .matchup-team {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-top: 1px solid #374151;
         }
 
-        .result {
-            text-align: left;
-        }
-
-        .note {
-            text-align: center;
-            color: #9ca3af;
-            font-size: 13px;
-            margin: 25px 0;
+        @media (max-width: 1000px) {
+            .conference-grid,
+            .bracket-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -150,110 +157,217 @@
 <body>
 
 <div class="header">
-    <h1>🧠 Playoff Scenario Machine</h1>
-    <p>Every possible win/loss combo from the remaining schedule, projected through current NFL-style seeding logic</p>
+    <h1>🏈 Interactive Playoff Machine</h1>
 
     <div class="nav">
         <a href="/">Playoff Picture</a>
-        <a href="/schedule">Remaining Schedule</a>
-        <a href="/draft">Draft Order</a>
-        <a href="/scenarios">Scenarios</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/draft">Draft</a>
+        <a href="/scenarios">Playoff Machine</a>
     </div>
 </div>
 
 <div class="container">
 
-    {% if scenario_data.warning %}
-    <div class="warning">
-        {{ scenario_data.warning }}
-    </div>
-    {% endif %}
+    <form method="POST">
 
-    <div class="card">
-        <div class="card-title">Scenario Summary</div>
-        <div class="summary">
-            <div><strong>Total simulated outcomes:</strong> {{ scenario_data.total_scenarios }}</div>
-            <div><strong>Games included:</strong> {{ scenario_data.games|length }}</div>
-            <div>
-                This page answers questions like:
-                <strong>“If Colts beat Patriots, what seeds become guaranteed?”</strong>
-            </div>
+        <div class="card">
+            <div class="card-title">Choose Winners</div>
+
+            <table>
+                <tr>
+                    <th>Week</th>
+                    <th>Away</th>
+                    <th>Home</th>
+                    <th>Winner</th>
+                </tr>
+
+                {% for game in games %}
+                <tr>
+                    <td>Week {{ game.Week }}</td>
+                    <td>{{ game.Away }}</td>
+                    <td>{{ game.Home }}</td>
+                    <td>
+                        <select name="game_{{ loop.index0 }}">
+                            <option value="">-- Select Winner --</option>
+
+                            <option value="{{ game.Away }}"
+                            {% if selected_winners.get('game_' ~ loop.index0) == game.Away %}selected{% endif %}>
+                                {{ game.Away }}
+                            </option>
+
+                            <option value="{{ game.Home }}"
+                            {% if selected_winners.get('game_' ~ loop.index0) == game.Home %}selected{% endif %}>
+                                {{ game.Home }}
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <button class="submit-btn" type="submit">
+                Simulate Playoffs
+            </button>
         </div>
+
+    </form>
+
+    {% if afc_results and nfc_results %}
+
+    <div class="conference-grid">
+
+        <div class="card">
+            <div class="card-title">Simulated AFC Standings</div>
+
+            <table>
+                <tr>
+                    <th>Seed</th>
+                    <th>Team</th>
+                    <th>Record</th>
+                </tr>
+
+                {% for team in afc_results %}
+                <tr>
+                    <td class="seed">{{ team.Seed }}</td>
+                    <td class="team-name">{{ team.Team }}</td>
+                    <td>{{ team.Wins }}-{{ team.Losses }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Simulated NFC Standings</div>
+
+            <table>
+                <tr>
+                    <th>Seed</th>
+                    <th>Team</th>
+                    <th>Record</th>
+                </tr>
+
+                {% for team in nfc_results %}
+                <tr>
+                    <td class="seed">{{ team.Seed }}</td>
+                    <td class="team-name">{{ team.Team }}</td>
+                    <td>{{ team.Wins }}-{{ team.Losses }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
     </div>
 
-    <div class="card">
-        <div class="card-title">Games Being Simulated</div>
-        <table>
-            <tr>
-                <th>Week</th>
-                <th>Away</th>
-                <th>Home</th>
-            </tr>
+    <div class="bracket-grid">
 
-            {% for game in scenario_data.games %}
-            <tr>
-                <td>Week {{ game.Week }}</td>
-                <td class="team">{{ game.Away }}</td>
-                <td class="team">{{ game.Home }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        <div class="card">
+            <div class="card-title">Projected AFC Bracket</div>
+
+            {% if afc_results|length >= 7 %}
+
+            <div class="matchup">
+                <div class="matchup-title">First Round Bye</div>
+                <div class="matchup-team">
+                    <span>(1) {{ afc_results[0].Team }}</span>
+                    <span>{{ afc_results[0].Wins }}-{{ afc_results[0].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(2) {{ afc_results[1].Team }}</span>
+                    <span>{{ afc_results[1].Wins }}-{{ afc_results[1].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(7) {{ afc_results[6].Team }}</span>
+                    <span>{{ afc_results[6].Wins }}-{{ afc_results[6].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(3) {{ afc_results[2].Team }}</span>
+                    <span>{{ afc_results[2].Wins }}-{{ afc_results[2].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(6) {{ afc_results[5].Team }}</span>
+                    <span>{{ afc_results[5].Wins }}-{{ afc_results[5].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(4) {{ afc_results[3].Team }}</span>
+                    <span>{{ afc_results[3].Wins }}-{{ afc_results[3].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(5) {{ afc_results[4].Team }}</span>
+                    <span>{{ afc_results[4].Wins }}-{{ afc_results[4].Losses }}</span>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card-title">Projected NFC Bracket</div>
+
+            {% if nfc_results|length >= 7 %}
+
+            <div class="matchup">
+                <div class="matchup-title">First Round Bye</div>
+                <div class="matchup-team">
+                    <span>(1) {{ nfc_results[0].Team }}</span>
+                    <span>{{ nfc_results[0].Wins }}-{{ nfc_results[0].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(2) {{ nfc_results[1].Team }}</span>
+                    <span>{{ nfc_results[1].Wins }}-{{ nfc_results[1].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(7) {{ nfc_results[6].Team }}</span>
+                    <span>{{ nfc_results[6].Wins }}-{{ nfc_results[6].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(3) {{ nfc_results[2].Team }}</span>
+                    <span>{{ nfc_results[2].Wins }}-{{ nfc_results[2].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(6) {{ nfc_results[5].Team }}</span>
+                    <span>{{ nfc_results[5].Wins }}-{{ nfc_results[5].Losses }}</span>
+                </div>
+            </div>
+
+            <div class="matchup">
+                <div class="matchup-title">Wildcard</div>
+                <div class="matchup-team">
+                    <span>(4) {{ nfc_results[3].Team }}</span>
+                    <span>{{ nfc_results[3].Wins }}-{{ nfc_results[3].Losses }}</span>
+                </div>
+                <div class="matchup-team">
+                    <span>(5) {{ nfc_results[4].Team }}</span>
+                    <span>{{ nfc_results[4].Wins }}-{{ nfc_results[4].Losses }}</span>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
     </div>
 
-    <div class="card">
-        <div class="card-title">Team Seed Possibilities</div>
-        <table>
-            <tr>
-                <th>Team</th>
-                <th>Possible Seeds</th>
-                <th>Guaranteed Seed</th>
-                <th>Playoff Odds</th>
-            </tr>
-
-            {% for team in scenario_data.team_results %}
-            <tr>
-                <td class="team">{{ team.Team }}</td>
-                <td>{{ team.PossibleSeeds }}</td>
-
-                {% if team.GuaranteedSeed %}
-                    <td class="good">#{{ team.GuaranteedSeed }}</td>
-                {% else %}
-                    <td>—</td>
-                {% endif %}
-
-                {% if team.PlayoffOdds >= 90 %}
-                    <td class="good">{{ team.PlayoffOdds }}%</td>
-                {% elif team.PlayoffOdds >= 50 %}
-                    <td class="mid">{{ team.PlayoffOdds }}%</td>
-                {% else %}
-                    <td class="bad">{{ team.PlayoffOdds }}%</td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-
-    <div class="card">
-        <div class="card-title">If / Then Guarantees</div>
-        <table>
-            <tr>
-                <th>If This Happens</th>
-                <th>Then This Is Guaranteed</th>
-            </tr>
-
-            {% for item in scenario_data.if_then %}
-            <tr>
-                <td class="scenario">{{ item.Game }}</td>
-                <td class="result">{{ item.Result }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-
-    <p class="note">
-        This is a projected scenario engine using the same seeding model as your dashboard. 
-        Exact real NFL tiebreakers like full head-to-head/common-games can only be perfect if every completed game result is stored in the data file.
-    </p>
+    {% endif %}
 
 </div>
 
