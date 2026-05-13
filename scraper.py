@@ -1,7 +1,7 @@
 # scraper.py
 # LOCAL VERSION
 # Remaining games logic:
-# Only Week 15-18 games with an actual visible score of 0-0 are counted as remaining.
+# Only NeonSportz rows with exact true unplayed pattern "0.00 vs 0 0.0" count as remaining.
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -65,6 +65,7 @@ CITY_TO_TEAM = {
     "Jacksonville": "Jaguars",
     "New England": "Patriots",
     "Houston": "Oilers",
+    "Los Angeles": ""
 }
 
 def get_conference(team):
@@ -167,57 +168,33 @@ def teams_from_text(text):
             found.append(team)
 
     for city, team in CITY_TO_TEAM.items():
+        if not team:
+            continue
+
         if re.search(rf"\b{re.escape(city)}\b", text, re.IGNORECASE):
             if team not in found:
                 found.append(team)
 
     return list(dict.fromkeys(found))
 
-def row_has_0_0_score(text):
+def game_is_unplayed(text):
     """
-    Only count a game as remaining if the row visibly has a 0-0 style score.
+    NeonSportz true unplayed games contain:
 
-    Accepted:
-    - 0-0
-    - 0 - 0
-    - 0–0
-    - 0 vs 0
+    0.00 vs 0 0.0
 
-    Rejected:
-    - 34-21
-    - 24 vs 17
-    - anything without a clear 0-0 score
+    Played games contain values like:
+    0.037 vs 34 0.0
+
+    So ONLY accept exact zero-vs-zero rows.
     """
 
-    clean = text.replace("–", "-").replace("—", "-")
+    clean = text.replace(" ", "").lower()
 
-    # Most normal score displays: 0-0 or 0 - 0
-    if re.search(r"\b0\s*-\s*0\b", clean):
-        return True
-
-    # NeonSportz style sometimes has "0 vs 0"
-    if re.search(r"\b0(?:\.0+)?\s+vs\s+0(?:\.0+)?\b", clean, re.IGNORECASE):
+    if "0.00vs00.0" in clean:
         return True
 
     return False
-
-def game_is_unplayed(text):
-    lower = text.lower()
-
-    # If it clearly says final/completed, never count it.
-    blocked_words = [
-        "final",
-        "completed",
-        "played",
-        "recap",
-        "box score"
-    ]
-
-    for word in blocked_words:
-        if word in lower:
-            return False
-
-    return row_has_0_0_score(text)
 
 def set_week(driver, week):
     try:
