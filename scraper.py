@@ -1,5 +1,7 @@
 # scraper.py
 # LOCAL VERSION
+# Remaining games logic:
+# Only Week 15-18 games with an actual visible score of 0-0 are counted as remaining.
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -171,59 +173,51 @@ def teams_from_text(text):
 
     return list(dict.fromkeys(found))
 
-def game_is_unplayed(text):
+def row_has_0_0_score(text):
     """
-    Counts a game as remaining only when it clearly looks unplayed.
+    Only count a game as remaining if the row visibly has a 0-0 style score.
 
-    We reject:
-    - Final/completed rows
-    - rows with normal completed football scores
-    - rows where NeonSportz shows a non-zero score after 'vs'
-
-    We accept:
-    - Not Scheduled
+    Accepted:
     - 0-0
-    - NeonSportz projection-style rows with 'vs 0'
+    - 0 - 0
+    - 0–0
+    - 0 vs 0
+
+    Rejected:
+    - 34-21
+    - 24 vs 17
+    - anything without a clear 0-0 score
     """
 
+    clean = text.replace("–", "-").replace("—", "-")
+
+    # Most normal score displays: 0-0 or 0 - 0
+    if re.search(r"\b0\s*-\s*0\b", clean):
+        return True
+
+    # NeonSportz style sometimes has "0 vs 0"
+    if re.search(r"\b0(?:\.0+)?\s+vs\s+0(?:\.0+)?\b", clean, re.IGNORECASE):
+        return True
+
+    return False
+
+def game_is_unplayed(text):
     lower = text.lower()
 
-    completed_words = [
+    # If it clearly says final/completed, never count it.
+    blocked_words = [
         "final",
         "completed",
         "played",
-        "box score",
-        "recap"
+        "recap",
+        "box score"
     ]
 
-    for word in completed_words:
+    for word in blocked_words:
         if word in lower:
             return False
 
-    if "not scheduled" in lower:
-        return True
-
-    # Normal score format like 34 - 21, 28–17, etc.
-    score_dash = re.search(r"\b(\d{1,2})\s*[-–]\s*(\d{1,2})\b", text)
-    if score_dash:
-        s1 = int(score_dash.group(1))
-        s2 = int(score_dash.group(2))
-
-        if s1 == 0 and s2 == 0:
-            return True
-
-        return False
-
-    # NeonSportz often has text like:
-    # 0.00 vs 0 0.0       = unplayed
-    # 0.037 vs 34 0.0     = played
-    vs_match = re.search(r"\b\d+(?:\.\d+)?\s+vs\s+(\d+)\s+\d+(?:\.\d+)?\b", text)
-    if vs_match:
-        visible_score = int(vs_match.group(1))
-        return visible_score == 0
-
-    # If we cannot clearly prove it is unplayed, do not count it.
-    return False
+    return row_has_0_0_score(text)
 
 def set_week(driver, week):
     try:
@@ -258,7 +252,7 @@ def scrape_remaining_games(driver):
         for row in rows:
             text = row.text.strip()
 
-            if "Week" not in text:
+            if not text:
                 continue
 
             if not game_is_unplayed(text):
@@ -384,7 +378,9 @@ def build_schedule_rows(games, standings):
             "Home": team2,
             "AwayRecord": team1_record,
             "HomeRecord": team2_record,
-            "Difficulty": difficulty
+            "Difficulty": difficulty,
+            "Score": "0-0",
+            "Status": "Unplayed"
         })
 
     return rows
@@ -398,25 +394,14 @@ def get_dashboard_data():
     finally:
         driver.quit()
 
-    games_left_map = {
-        row["Team"]: int(row["Remaining"])
-        for _, row in standings.iterrows()
-    }
-
     opponent_map = {team: [] for team in standings["Team"]}
-
-    # Sort later weeks first so if NeonSportz accidentally leaks an old completed game,
-    # the current/future week games are favored.
-    games = sorted(games, key=lambda g: g[0], reverse=True)
 
     for week, team1, team2 in games:
         if team1 in opponent_map:
-            if len(opponent_map[team1]) < games_left_map.get(team1, 0):
-                opponent_map[team1].append(f"W{week}: {team2}")
+            opponent_map[team1].append(f"W{week}: {team2}")
 
         if team2 in opponent_map:
-            if len(opponent_map[team2]) < games_left_map.get(team2, 0):
-                opponent_map[team2].append(f"W{week}: {team1}")
+            opponent_map[team2].append(f"W{week}: {team1}")
 
     record_map = {row["Team"]: row["Record"] for _, row in standings.iterrows()}
 
@@ -425,26 +410,27 @@ def get_dashboard_data():
 
     for _, row in standings.iterrows():
         team = row["Team"]
-        scraped_games_left = opponent_map.get(team, [])
+        games_left = opponent_map.get(team, [])
 
-        # Put week order back to normal after capping.
-        scraped_games_left = sorted(
-            scraped_games_left,
-            key=lambda x: int(x.split(":")[0].replace("W", ""))
-        )
+        if games_left:
+            games_left = sorted(
+                games_left,
+                key=lambda x: int(x.split(":")[0].replace("W", ""))
+            )
 
-        if scraped_games_left:
-            remaining_lists.append(", ".join(scraped_games_left))
+            remaining_lists.append(", ".join(games_left))
 
             scores = []
-            for game in scraped_games_left:
+
+            for game in games_left:
                 opponent = game.split(": ")[1]
                 scores.append(calculate_difficulty(record_map.get(opponent, "0-0")))
 
             difficulty_scores.append(round(sum(scores) / len(scores), 3))
+
         else:
             if int(row["Remaining"]) > 0:
-                remaining_lists.append("Opponent names unavailable")
+                remaining_lists.append("No 0-0 game found")
             else:
                 remaining_lists.append("None")
 
