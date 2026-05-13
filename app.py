@@ -36,6 +36,35 @@ def safe_float(value, default=0.0):
         return default
 
 
+def normalize_team(team):
+    item = team.copy()
+
+    item["Wins"] = safe_int(item.get("Wins", 0))
+    item["Losses"] = safe_int(item.get("Losses", 0))
+    item["Ties"] = safe_int(item.get("Ties", 0))
+    item["Diff"] = safe_int(item.get("Diff", 0))
+    item["PF"] = safe_int(item.get("PF", 0))
+    item["Seed"] = safe_int(item.get("Seed", 99), 99)
+
+    item["DivisionPct"] = safe_float(item.get("DivisionPct", 0))
+    item["ConferencePct"] = safe_float(item.get("ConferencePct", 0))
+
+    total = item["Wins"] + item["Losses"] + item["Ties"]
+    item["WinPct"] = round((item["Wins"] + 0.5 * item["Ties"]) / total, 3) if total else 0
+
+    item["Record"] = (
+        f"{item['Wins']}-{item['Losses']}"
+        if item["Ties"] == 0
+        else f"{item['Wins']}-{item['Losses']}-{item['Ties']}"
+    )
+
+    return item
+
+
+def normalize_standings(standings):
+    return [normalize_team(team) for team in standings]
+
+
 def sort_for_seed(teams):
     return sorted(
         teams,
@@ -51,16 +80,8 @@ def sort_for_seed(teams):
 
 
 def record_win_pct(team):
-    wins = safe_int(team.get("Wins", 0))
-    losses = safe_int(team.get("Losses", 0))
-    ties = safe_int(team.get("Ties", 0))
-
-    total = wins + losses + ties
-
-    if total == 0:
-        return 0
-
-    return (wins + 0.5 * ties) / total
+    item = normalize_team(team)
+    return item["WinPct"]
 
 
 def calculate_sos(team_name, standings, schedule):
@@ -95,7 +116,7 @@ def calculate_sos(team_name, standings, schedule):
 def build_draft_order(standings, schedule):
     teams = []
 
-    for team in standings:
+    for team in normalize_standings(standings):
         item = team.copy()
         item["WinPctCalc"] = record_win_pct(item)
         item["ProjectedSOS"] = calculate_sos(item.get("Team"), standings, schedule)
@@ -150,53 +171,59 @@ def build_draft_order(standings, schedule):
 
 
 def reseed_after_results(standings):
-    teams = deepcopy(standings)
-
-    for team in teams:
-        wins = safe_int(team.get("Wins", 0))
-        losses = safe_int(team.get("Losses", 0))
-        ties = safe_int(team.get("Ties", 0))
-
-        total = wins + losses + ties
-
-        team["WinPct"] = round((wins + 0.5 * ties) / total, 3) if total else 0
+    teams = normalize_standings(deepcopy(standings))
 
     final = []
 
     for conf in ["AFC", "NFC"]:
-        conf_teams = [t for t in teams if t.get("Conference") == conf]
+        conf_teams = [
+            team for team in teams
+            if team.get("Conference") == conf
+        ]
 
-        divisions = sorted(set(t.get("Division") for t in conf_teams))
+        divisions = sorted(
+            set(team.get("Division") for team in conf_teams)
+        )
 
         division_winners = []
 
         for division in divisions:
-            div_teams = [t for t in conf_teams if t.get("Division") == division]
+            div_teams = [
+                team for team in conf_teams
+                if team.get("Division") == division
+            ]
 
-            if div_teams:
-                winner = sort_for_seed(div_teams)[0]
-                winner["DivisionWinner"] = True
-                division_winners.append(winner)
+            if not div_teams:
+                continue
+
+            winner = sort_for_seed(div_teams)[0]
+            winner["DivisionWinner"] = True
+            division_winners.append(winner)
 
         division_winners = sort_for_seed(division_winners)
 
-        for i, team in enumerate(division_winners, start=1):
-            team["Seed"] = i
+        for seed, team in enumerate(division_winners, start=1):
+            team["Seed"] = seed
 
-        winner_names = set(t.get("Team") for t in division_winners)
+        winner_names = set(team.get("Team") for team in division_winners)
 
-        wildcards = [t for t in conf_teams if t.get("Team") not in winner_names]
+        wildcards = [
+            team for team in conf_teams
+            if team.get("Team") not in winner_names
+        ]
+
         wildcards = sort_for_seed(wildcards)
 
-        for i, team in enumerate(wildcards[:3], start=5):
-            team["Seed"] = i
+        for seed, team in enumerate(wildcards[:3], start=5):
+            team["Seed"] = seed
             team["DivisionWinner"] = False
 
-        for i, team in enumerate(wildcards[3:], start=8):
-            team["Seed"] = i
+        for seed, team in enumerate(wildcards[3:], start=8):
+            team["Seed"] = seed
             team["DivisionWinner"] = False
 
-        final.extend(division_winners + wildcards)
+        final.extend(division_winners)
+        final.extend(wildcards)
 
     return final
 
@@ -230,7 +257,7 @@ def clean_remaining_games(standings, schedule):
 
 
 def apply_selected_results(standings, selected_winners, games):
-    simulated = deepcopy(standings)
+    simulated = normalize_standings(deepcopy(standings))
 
     team_map = {
         team.get("Team"): team
@@ -254,16 +281,22 @@ def apply_selected_results(standings, selected_winners, games):
         if loser in team_map:
             team_map[loser]["Losses"] = safe_int(team_map[loser].get("Losses", 0)) + 1
 
-    reseeded = reseed_after_results(simulated)
+        if winner in team_map:
+            team_map[winner] = normalize_team(team_map[winner])
+
+        if loser in team_map:
+            team_map[loser] = normalize_team(team_map[loser])
+
+    reseeded = reseed_after_results(list(team_map.values()))
 
     afc = sorted(
-        [t for t in reseeded if t.get("Conference") == "AFC"],
-        key=lambda x: safe_int(x.get("Seed", 99))
+        [team for team in reseeded if team.get("Conference") == "AFC"],
+        key=lambda x: safe_int(x.get("Seed", 99), 99)
     )
 
     nfc = sorted(
-        [t for t in reseeded if t.get("Conference") == "NFC"],
-        key=lambda x: safe_int(x.get("Seed", 99))
+        [team for team in reseeded if team.get("Conference") == "NFC"],
+        key=lambda x: safe_int(x.get("Seed", 99), 99)
     )
 
     return afc, nfc
@@ -274,13 +307,13 @@ def home():
     standings, schedule, scenario_data, last_error = load_data()
 
     afc = sorted(
-        [team for team in standings if team.get("Conference") == "AFC"],
-        key=lambda x: safe_int(x.get("Seed", 99))
+        [team for team in normalize_standings(standings) if team.get("Conference") == "AFC"],
+        key=lambda x: safe_int(x.get("Seed", 99), 99)
     )
 
     nfc = sorted(
-        [team for team in standings if team.get("Conference") == "NFC"],
-        key=lambda x: safe_int(x.get("Seed", 99))
+        [team for team in normalize_standings(standings) if team.get("Conference") == "NFC"],
+        key=lambda x: safe_int(x.get("Seed", 99), 99)
     )
 
     return render_template(

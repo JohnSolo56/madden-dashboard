@@ -1,5 +1,6 @@
 # scraper.py
 # LOCAL VERSION
+# Houston Texans and Houston Oilers are separate teams.
 # Remaining games logic:
 # Only NeonSportz rows with exact true unplayed pattern "0.00 vs 0 0.0" count as remaining.
 
@@ -35,38 +36,69 @@ DIVISIONS = {
 
 ALL_TEAMS = set(DIVISIONS.keys())
 
-CITY_TO_TEAM = {
-    "Dallas": "Cowboys",
-    "Washington": "Commanders",
-    "Philadelphia": "Eagles",
-    "Tennessee": "Titans",
-    "Atlanta": "Falcons",
-    "Minnesota": "Vikings",
-    "Baltimore": "Ravens",
-    "Pittsburgh": "Steelers",
-    "Austin": "Armadillos",
-    "Detroit": "Lions",
-    "Buffalo": "Bills",
-    "Miami": "Dolphins",
-    "Cleveland": "Browns",
-    "Tampa Bay": "Buccaneers",
-    "Green Bay": "Packers",
-    "New Orleans": "Saints",
-    "Kansas City": "Chiefs",
-    "Chicago": "Bears",
-    "Rio De Janeiro": "Bisons",
-    "Las Vegas": "Raiders",
-    "Arizona": "Cardinals",
-    "San Francisco": "49ers",
-    "Seattle": "Seahawks",
-    "Indianapolis": "Colts",
-    "New York": "Giants",
-    "Cincinnati": "Bengals",
-    "Jacksonville": "Jaguars",
-    "New England": "Patriots",
-    "Houston": "Oilers",
-    "Los Angeles": ""
+FULL_NAME_TO_TEAM = {
+    "Buffalo Bills": "Bills",
+    "Miami Dolphins": "Dolphins",
+    "New England Patriots": "Patriots",
+    "Rio De Janeiro Bisons": "Bisons",
+
+    "Baltimore Ravens": "Ravens",
+    "Cincinnati Bengals": "Bengals",
+    "Cleveland Browns": "Browns",
+    "Pittsburgh Steelers": "Steelers",
+
+    "Houston Texans": "Texans",
+    "Indianapolis Colts": "Colts",
+    "Jacksonville Jaguars": "Jaguars",
+    "Tennessee Titans": "Titans",
+
+    "Kansas City Chiefs": "Chiefs",
+    "Las Vegas Raiders": "Raiders",
+    "Los Angeles Chargers": "Chargers",
+    "Houston Oilers": "Oilers",
+
+    "Dallas Cowboys": "Cowboys",
+    "New York Giants": "Giants",
+    "Philadelphia Eagles": "Eagles",
+    "Washington Commanders": "Commanders",
+
+    "Chicago Bears": "Bears",
+    "Detroit Lions": "Lions",
+    "Green Bay Packers": "Packers",
+    "Minnesota Vikings": "Vikings",
+
+    "Atlanta Falcons": "Falcons",
+    "New Orleans Saints": "Saints",
+    "Tampa Bay Buccaneers": "Buccaneers",
+    "Austin Armadillos": "Armadillos",
+
+    "Arizona Cardinals": "Cardinals",
+    "Los Angeles Rams": "Rams",
+    "San Francisco 49ers": "49ers",
+    "Seattle Seahawks": "Seahawks",
 }
+
+def normalize_team_name(raw_name):
+    if not raw_name:
+        return ""
+
+    name = raw_name.replace(" - X", "").replace(" - Y", "").strip()
+
+    if name in DIVISIONS:
+        return name
+
+    if name in FULL_NAME_TO_TEAM:
+        return FULL_NAME_TO_TEAM[name]
+
+    for full_name, team in FULL_NAME_TO_TEAM.items():
+        if full_name.lower() == name.lower():
+            return team
+
+    for team in ALL_TEAMS:
+        if re.search(rf"\b{re.escape(team)}\b", name, re.IGNORECASE):
+            return team
+
+    return name
 
 def get_conference(team):
     division = DIVISIONS.get(team, "")
@@ -119,7 +151,7 @@ def scrape_standings(driver, wait):
         if len(cols) < 13:
             continue
 
-        team = cols[0].replace(" - X", "").replace(" - Y", "").strip()
+        team = normalize_team_name(cols[0])
 
         if team not in DIVISIONS:
             continue
@@ -163,17 +195,21 @@ def scrape_standings(driver, wait):
 def teams_from_text(text):
     found = []
 
+    # First detect exact full team names.
+    for full_name, team in FULL_NAME_TO_TEAM.items():
+        if re.search(rf"\b{re.escape(full_name)}\b", text, re.IGNORECASE):
+            found.append(team)
+
+    # Then detect nicknames.
     for team in ALL_TEAMS:
         if re.search(rf"\b{re.escape(team)}\b", text, re.IGNORECASE):
             found.append(team)
 
-    for city, team in CITY_TO_TEAM.items():
-        if not team:
-            continue
-
-        if re.search(rf"\b{re.escape(city)}\b", text, re.IGNORECASE):
-            if team not in found:
-                found.append(team)
+    # Important:
+    # Do NOT map "Houston" alone.
+    # This league has both Houston Texans and Houston Oilers.
+    # Do NOT map "Los Angeles" alone.
+    # This league has both Rams and Chargers.
 
     return list(dict.fromkeys(found))
 
