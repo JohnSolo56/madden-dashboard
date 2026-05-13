@@ -201,80 +201,32 @@ def reseed_after_results(standings):
     return final
 
 
-def game_is_unplayed(game):
-    status = str(game.get("Status", "")).lower()
-    played = str(game.get("Played", "")).lower()
-    complete = str(game.get("Complete", "")).lower()
-    completed = str(game.get("Completed", "")).lower()
-    result = str(game.get("Result", "")).lower()
-
-    away_score = str(game.get("AwayScore", "")).strip()
-    home_score = str(game.get("HomeScore", "")).strip()
-
-    score = str(game.get("Score", "")).strip()
-
-    if "final" in status:
-        return False
-
-    if "complete" in status:
-        return False
-
-    if "played" in status:
-        return False
-
-    if played == "true":
-        return False
-
-    if complete == "true":
-        return False
-
-    if completed == "true":
-        return False
-
-    if result not in ["", "none", "null"]:
-        return False
-
-    if away_score not in ["", "0", "0.0"] and home_score not in ["", "0", "0.0"]:
-        return False
-
-    if score not in ["", "0-0", "0 - 0", "0"]:
-        return False
-
-    return True
-
-
 def clean_remaining_games(standings, schedule):
     games = []
-
-    if schedule:
-        for game in schedule:
-            away = game.get("Away")
-            home = game.get("Home")
-            week = str(game.get("Week", "?"))
-
-            if not away or not home:
-                continue
-
-            if not game_is_unplayed(game):
-                continue
-
-            games.append({
-                "Week": week,
-                "Away": away,
-                "Home": home
-            })
-
-    unique = []
     seen = set()
 
-    for game in games:
-        key = tuple(sorted([game["Away"], game["Home"]])) + (game["Week"],)
+    for game in schedule:
+        away = game.get("Away")
+        home = game.get("Home")
+        week = str(game.get("Week", "?"))
 
-        if key not in seen:
-            seen.add(key)
-            unique.append(game)
+        if not away or not home:
+            continue
 
-    return unique
+        key = tuple(sorted([away, home])) + (week,)
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        games.append({
+            "Week": week,
+            "Away": away,
+            "Home": home
+        })
+
+    return games
 
 
 def apply_selected_results(standings, selected_winners, games):
