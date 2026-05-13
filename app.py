@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import json
 import os
-import re
 from copy import deepcopy
 
 app = Flask(__name__)
@@ -11,7 +10,7 @@ DATA_FILE = "dashboard_data.json"
 
 def load_data():
     if not os.path.exists(DATA_FILE):
-        return [], [], None, "No dashboard data found."
+        return [], [], {}, "No dashboard data found."
 
     with open(DATA_FILE, "r") as f:
         data = json.load(f)
@@ -49,6 +48,105 @@ def sort_for_seed(teams):
         ),
         reverse=True
     )
+
+
+def record_win_pct(team):
+    wins = safe_int(team.get("Wins", 0))
+    losses = safe_int(team.get("Losses", 0))
+    ties = safe_int(team.get("Ties", 0))
+
+    total = wins + losses + ties
+
+    if total == 0:
+        return 0
+
+    return (wins + 0.5 * ties) / total
+
+
+def calculate_sos(team_name, standings, schedule):
+    record_map = {
+        team.get("Team"): record_win_pct(team)
+        for team in standings
+    }
+
+    opponents = []
+
+    for game in schedule:
+        away = game.get("Away")
+        home = game.get("Home")
+
+        if away == team_name:
+            opponents.append(home)
+
+        if home == team_name:
+            opponents.append(away)
+
+    if not opponents:
+        return 1.000
+
+    opponent_pcts = []
+
+    for opponent in opponents:
+        opponent_pcts.append(record_map.get(opponent, 0))
+
+    return round(sum(opponent_pcts) / len(opponent_pcts), 3)
+
+
+def build_draft_order(standings, schedule):
+    teams = []
+
+    for team in standings:
+        item = team.copy()
+        item["WinPctCalc"] = record_win_pct(item)
+        item["ProjectedSOS"] = calculate_sos(item.get("Team"), standings, schedule)
+        item["SeedNum"] = safe_int(item.get("Seed", 99), 99)
+        item["WinsNum"] = safe_int(item.get("Wins", 0))
+        item["DiffNum"] = safe_int(item.get("Diff", 0))
+        item["PFNum"] = safe_int(item.get("PF", 0))
+        item["ConferencePctNum"] = safe_float(item.get("ConferencePct", 0))
+        item["DivisionPctNum"] = safe_float(item.get("DivisionPct", 0))
+        teams.append(item)
+
+    non_playoff = [t for t in teams if t["SeedNum"] > 7]
+    playoff = [t for t in teams if t["SeedNum"] <= 7]
+
+    non_playoff_sorted = sorted(
+        non_playoff,
+        key=lambda t: (
+            t["WinPctCalc"],
+            t["ProjectedSOS"],
+            t["ConferencePctNum"],
+            t["DivisionPctNum"],
+            t["DiffNum"],
+            t["PFNum"]
+        )
+    )
+
+    playoff_sorted = sorted(
+        playoff,
+        key=lambda t: (
+            t["SeedNum"] * -1,
+            t["WinPctCalc"],
+            t["ProjectedSOS"],
+            t["DiffNum"],
+            t["PFNum"]
+        )
+    )
+
+    draft_order = []
+
+    for i, team in enumerate(non_playoff_sorted + playoff_sorted, start=1):
+        item = team.copy()
+        item["Pick"] = i
+
+        if item["SeedNum"] > 7:
+            item["Reason"] = "Non-playoff: record, SOS, then NFL-style fallback"
+        else:
+            item["Reason"] = "Projected playoff slot"
+
+        draft_order.append(item)
+
+    return draft_order
 
 
 def reseed_after_results(standings):
@@ -103,6 +201,48 @@ def reseed_after_results(standings):
     return final
 
 
+def game_is_unplayed(game):
+    status = str(game.get("Status", "")).lower()
+    played = str(game.get("Played", "")).lower()
+    complete = str(game.get("Complete", "")).lower()
+    completed = str(game.get("Completed", "")).lower()
+    result = str(game.get("Result", "")).lower()
+
+    away_score = str(game.get("AwayScore", "")).strip()
+    home_score = str(game.get("HomeScore", "")).strip()
+
+    score = str(game.get("Score", "")).strip()
+
+    if "final" in status:
+        return False
+
+    if "complete" in status:
+        return False
+
+    if "played" in status:
+        return False
+
+    if played == "true":
+        return False
+
+    if complete == "true":
+        return False
+
+    if completed == "true":
+        return False
+
+    if result not in ["", "none", "null"]:
+        return False
+
+    if away_score not in ["", "0", "0.0"] and home_score not in ["", "0", "0.0"]:
+        return False
+
+    if score not in ["", "0-0", "0 - 0", "0"]:
+        return False
+
+    return True
+
+
 def clean_remaining_games(standings, schedule):
     games = []
 
@@ -112,12 +252,17 @@ def clean_remaining_games(standings, schedule):
             home = game.get("Home")
             week = str(game.get("Week", "?"))
 
-            if away and home:
-                games.append({
-                    "Week": week,
-                    "Away": away,
-                    "Home": home
-                })
+            if not away or not home:
+                continue
+
+            if not game_is_unplayed(game):
+                continue
+
+            games.append({
+                "Week": week,
+                "Away": away,
+                "Home": home
+            })
 
     unique = []
     seen = set()
@@ -208,10 +353,11 @@ def schedule():
 @app.route("/draft")
 def draft():
     standings, schedule_rows, scenario_data, last_error = load_data()
+    draft_order = build_draft_order(standings, schedule_rows)
 
     return render_template(
         "draft.html",
-        draft_order=standings,
+        draft_order=draft_order,
         last_error=last_error
     )
 
